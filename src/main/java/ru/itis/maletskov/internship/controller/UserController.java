@@ -36,6 +36,7 @@ public class UserController {
     @PostMapping("/search_video")
     public String searchVideo(@RequestParam("videoName") String name,
                               Model model) throws IOException, JSONException {
+        //todo remake that
         model.addAttribute("url", youTubeService.searchVideo(name.split(" ")[0], name.split(" ")[1]));
         return "home";
     }
