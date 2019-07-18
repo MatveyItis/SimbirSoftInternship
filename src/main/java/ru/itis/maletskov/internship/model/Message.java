@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -16,4 +17,10 @@ public class Message {
 
     @Column(name = "text", nullable = false, length = 1024)
     private String text;
+
+    @Column(name = "sender")
+    private String sender;
+    
+    @Column(name = "date_time")
+    private LocalDateTime dateTime;
 }

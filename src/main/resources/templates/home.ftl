@@ -1,7 +1,8 @@
 <#import "parts/common.ftl" as c>
 
-<@c.common "Login">
-    <h2>Welcome to Chat!</h2>
+<@c.common "Home">
+    <body>
+    <@c.navbar/>
     <div class="container pt-5 col-md-6">
         <form action="/search_video" method="post">
             <label for="video_name">Type name of video..</label>
@@ -16,4 +17,6 @@
             <p>No content</p>
         </#if>
     </div>
+    <@c.scripts/>
+    </body>
 </@c.common>

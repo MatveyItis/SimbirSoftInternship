@@ -30,7 +30,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .formLogin()
                 .loginPage("/login")
                 .usernameParameter("login")
-                .defaultSuccessUrl("/home", true)
+                .defaultSuccessUrl("/chat", true)
                 .permitAll()
                 .and()
                 .logout()

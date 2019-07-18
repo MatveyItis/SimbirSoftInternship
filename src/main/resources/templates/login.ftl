@@ -2,6 +2,8 @@
 <#import "/spring.ftl" as spring>
 
 <@c.common "Login">
+    <body>
+    <@c.navbar/>
     <div class="container pt-5 col-md-5">
         <h3>Log in</h3>
         <form action="/login" method="post">
@@ -16,6 +18,7 @@
             <button type="submit" class="btn btn-primary">Submit</button>
             <a role="button" href="/registration" class="btn btn-secondary">Registration</a>
         </form>
-        <br>
     </div>
+    <@c.scripts/>
+    </body>
 </@c.common>
