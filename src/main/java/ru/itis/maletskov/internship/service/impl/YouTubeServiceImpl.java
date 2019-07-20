@@ -56,7 +56,6 @@ public class YouTubeServiceImpl implements YouTubeService {
         channelName = channelName.replace(' ', '+');
         StringBuilder sb = new StringBuilder(YOUTUBE_API_URL).append("/channels");
         sb.append("?").append("key=").append(API_KEY).append("&");
-        //sb.append("q=").append(channelName).append("&");
         sb.append("part=").append("snippet").append("&");
         sb.append("forUsername=").append(channelName);
 

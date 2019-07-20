@@ -22,7 +22,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String login) {
         Optional<User> candidate = userRepository.findByLogin(login);
         return candidate.orElseThrow(() ->
                 new UsernameNotFoundException("User with login : " + login + " is not found")

@@ -5,7 +5,7 @@
     <@c.navbar/>
     <div class="container pt-5 col-md-6">
         <form action="/search_video" method="post">
-            <label for="video_name">Type name of video..</label>
+            <label for="video_name">Type name of channel and name of video..</label>
             <input type="text" class="form-control" id="video_name" name="videoName">
             <button type="submit" class="btn btn-success">Search</button>
         </form>

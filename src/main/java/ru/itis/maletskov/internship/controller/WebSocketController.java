@@ -6,7 +6,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import ru.itis.maletskov.internship.model.Message;
 import ru.itis.maletskov.internship.model.User;
 
@@ -21,27 +20,12 @@ public class WebSocketController {
 
     @MessageMapping("/chat")
     @SendTo("/topic/messages")
-    public Message sendMessage(Message message) throws Exception {
+    public Message sendMessage(Message message) throws InterruptedException {
         message.setDateTime(LocalDateTime.now());
         messages.add(message);
         Thread.sleep(100);
         return message;
     }
-
-    /*
-    @MessageMapping("/chat")
-    @SendTo("/topic/messages")
-    public Message sendMessage(@Payload Message message) {
-        return message;
-    }
-
-    @MessageMapping("/chat.newUser")
-    @SendTo("/topic/javainuse")
-    public Message newUser(@Payload Message message,
-                           SimpMessageHeaderAccessor headerAccessor) {
-        headerAccessor.getSessionAttributes().put("username", message.getSender());
-        return message;
-    }*/
 
     @GetMapping("/chat")
     public String chatPage(@AuthenticationPrincipal User user,
