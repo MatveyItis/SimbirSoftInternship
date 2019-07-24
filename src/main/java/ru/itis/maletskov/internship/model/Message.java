@@ -1,7 +1,9 @@
 package ru.itis.maletskov.internship.model;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -10,6 +12,7 @@ import java.time.LocalDateTime;
 @Setter
 @Entity
 @Table(name = "message")
+@ToString(exclude = "chat")
 public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,7 +23,10 @@ public class Message {
 
     @Column(name = "sender")
     private String sender;
-    
+
+    @OneToOne
+    private Chat chat;
+
     @Column(name = "date_time")
     private LocalDateTime dateTime;
 }

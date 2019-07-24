@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import ru.itis.maletskov.internship.form.UserForm;
 import ru.itis.maletskov.internship.model.Role;
 import ru.itis.maletskov.internship.model.User;
+import ru.itis.maletskov.internship.model.UserAuth;
 import ru.itis.maletskov.internship.repository.UserRepository;
 import ru.itis.maletskov.internship.service.UserService;
 
@@ -24,9 +25,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDetails loadUserByUsername(String login) {
         Optional<User> candidate = userRepository.findByLogin(login);
-        return candidate.orElseThrow(() ->
-                new UsernameNotFoundException("User with login : " + login + " is not found")
-        );
+        if (candidate.isPresent()) {
+            return new UserAuth(candidate.get());
+        } else {
+            throw new UsernameNotFoundException("User with login: " + login + " is not found");
+        }
     }
 
     @Override

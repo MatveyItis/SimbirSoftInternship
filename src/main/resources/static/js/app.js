@@ -1,7 +1,7 @@
 var stompClient = null;
 
 function setConnected(connected) {
-     if (connected) {
+    if (connected) {
         $("#conversation").show();
     } else {
         $("#conversation").hide();
@@ -32,18 +32,33 @@ function disconnect() {
 }
 
 function sendMessage() {
-    stompClient.send("/app/chat", {}, JSON.stringify({'sender': $('#sender').val(), 'text': $("#text").val()}));
+    parseCommand($("textarea").val());
+    /*stompClient.send("/app/chat", {}, JSON.stringify({'sender': $('#sender').val(), 'text': $("#text").val()}));
     $("textarea").val('');
-    let objDiv = document.getElementById("content");
-    objDiv.scrollTop = objDiv.scrollHeight;
+    let objDiv = $("#content");
+    objDiv.scrollTop = objDiv.scrollHeight;*/
 }
 
 function showMessage(message) {
-    $("#greetings").append("<tr><td>" + '<b>' + message.sender + '$: </b>' + message.text + "</td></tr>");
+    let dateTime = new Date(Date.parse(message.dateTime));
+    dateTime.setHours(dateTime.getHours() + 3);
+    let dateTimeString = dateTime.toISOString();
+    dateTimeString = dateTimeString.replace('T', ' ');
+    dateTimeString = dateTimeString.substring(dateTimeString.length - 5, 0);
+    $("#greetings").append('<tr>' +
+        '<th scope="row" style="width: 80px">' + message.sender + '</th>' +
+        '<td colspan="2">' + message.text + '</td>' +
+        '<td style="text-align: right; width: 180px">' + dateTimeString + '</td>' +
+        '</tr>'
+    );
     let objDiv = document.getElementById("content");
     objDiv.scrollTop = objDiv.scrollHeight;
 }
 
 $(function () {
-
+    $("#text").keyup(function (event) {
+        if (event.keyCode === 13) {
+            $("#send").click();
+        }
+    });
 });

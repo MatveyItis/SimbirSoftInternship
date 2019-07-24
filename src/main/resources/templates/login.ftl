@@ -15,6 +15,11 @@
                 <label for="password">Password</label>
                 <input type="password" class="form-control" name="password" id="password" placeholder="Enter password">
             </div>
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox"> Check me out
+                </label>
+            </div>
             <button type="submit" class="btn btn-primary">Submit</button>
             <a role="button" href="/registration" class="btn btn-secondary">Registration</a>
         </form>

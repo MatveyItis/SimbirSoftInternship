@@ -15,11 +15,10 @@ import java.io.IOException;
 public class YBotController {
     private final YouTubeService youTubeService;
 
-    @PostMapping("/search_video")
-    public String searchVideo(@RequestParam("videoName") String name,
+    @PostMapping("/ybot_command")
+    public String searchVideo(@RequestParam("search_request") String name,
                               Model model) throws IOException, JSONException {
-        //NOSONAR todo remake that
         model.addAttribute("url", youTubeService.searchVideo(name.split(" ")[0], name.split(" ")[1]));
-        return "home";
+        return "ybot";
     }
 }

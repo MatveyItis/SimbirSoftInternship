@@ -10,8 +10,8 @@ public class BaseController {
         return "login";
     }
 
-    @GetMapping("/home")
+    @GetMapping("/ybot")
     public String homePage() {
-        return "home";
+        return "ybot";
     }
 }

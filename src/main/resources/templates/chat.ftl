@@ -8,31 +8,23 @@
     <div id="main-content" class="container">
         <div class="row">
             <div class="col-md-6">
-                <#--<div class="form-group">
-                    <label for="connect">WebSocket connection:</label>
-                    <button id="connect" class="btn btn-default" type="button"
-                            onclick="connect()">Connect
-                    </button>
-                    <button id="disconnect" class="btn btn-default" type="button" disabled="disabled"
-                            onclick="disconnect()">Disconnect
-                    </button>
-                </div>-->
             </div>
             <div class="col-md-6">
-
             </div>
         </div>
         <div class="row">
             <h5 class="p-2">Chat room</h5>
             <div class="col-md-12" id="content" style="height: 600px; overflow-y: scroll">
-                <table id="conversation" class="table">
+                <table id="conversation" class="table table-borderless">
                     <thead>
                     </thead>
                     <tbody id="greetings">
                     <#if messages??>
                         <#list messages as message>
                             <tr>
-                                <td><b>${message.sender}$: </b>${message.text}</td>
+                                <th scope="row" style="width: 80px">${message.sender}</th>
+                                <td colspan="2">${message.text}</td>
+                                <td style="text-align: right; width: 180px">${message.dateTime.format(formatter)}</td>
                             </tr>
                         </#list>
                     </#if>

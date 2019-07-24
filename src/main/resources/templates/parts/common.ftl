@@ -9,10 +9,12 @@
               href="https://unpkg.com/bootstrap-material-design@4.1.1/dist/css/bootstrap-material-design.min.css"
               integrity="sha384-wXznGJNEXNG1NFsbm0ugrLFMQPWswR3lds2VeinahP8N0zJw9VWSopbjv2x7WCvX"
               crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="/css/app.css">
         <script src="/webjars/jquery/jquery.min.js"></script>
         <script src="/webjars/sockjs-client/sockjs.min.js"></script>
         <script src="/webjars/stomp-websocket/stomp.min.js"></script>
         <script src="/js/app.js"></script>
+        <script src="/js/chat_bot.js"></script>
         <title>${title}</title>
     </head>
     <#nested>
@@ -32,35 +34,26 @@
         <div class="collapse navbar-collapse" id="navbarColor02">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item active">
-                    <a class="nav-link" href="#">Home <span class="sr-only">(current)</span>
-                        <div class="ripple-container"></div>
+                    <a class="nav-link" href="/chat">Home <span class="sr-only">(current)</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Features
-                        <div class="ripple-container"></div>
-                    </a>
+                    <a class="nav-link" href="/chats">Chats</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Pricing</a>
+                    <a class="nav-link" href="/ybot">YBot</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">About</a>
+                    <a class="nav-link" href="/about">About</a>
                 </li>
+
             </ul>
-            <form class="form-inline">
-                <span class="bmd-form-group"><input class="form-control mr-sm-2" type="search" placeholder="Search"
-                                                    aria-label="Search"></span>
-                <button class="btn btn-outline-light my-2 my-sm-0" type="submit">Search</button>
-            </form>
         </div>
     </nav>
 </#macro>
 
 <#macro scripts>
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-            integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-            crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js" type="text/javascript"></script>
     <script src="https://unpkg.com/popper.js@1.12.6/dist/umd/popper.js"
             integrity="sha384-fA23ZRQ3G/J53mElWqVJEGJzU0sTs+SvzG8fXVWP+kJQ1lwFAOkcUOysnlKJC33U"
             crossorigin="anonymous"></script>
