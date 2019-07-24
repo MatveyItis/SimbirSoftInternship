@@ -58,4 +58,5 @@ public class WebSocketController {
         model.addAttribute("username", userAuth.getLogin());
         return "chats";
     }
+
 }
