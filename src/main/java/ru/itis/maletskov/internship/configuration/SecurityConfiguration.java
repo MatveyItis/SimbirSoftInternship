@@ -23,15 +23,17 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/", "/login", "/registration", "/home",
-                        "/api/**", "/img/**", "/font/**", "/css/**", "/error/*").permitAll()
+                .antMatchers("/", "/registration", "/login", "/api/**", "/img/**", "/font/**", "/css/**", "/error/*")
+                .permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()
                 .loginPage("/login")
                 .usernameParameter("login")
-                .defaultSuccessUrl("/chat", true)
+                .defaultSuccessUrl("/chats", true)
                 .permitAll()
+                .and()
+                .rememberMe().tokenValiditySeconds(603400)
                 .and()
                 .logout()
                 .permitAll();

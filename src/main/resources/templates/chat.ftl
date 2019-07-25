@@ -1,6 +1,6 @@
 <#import "parts/common.ftl" as c>
 <@c.common "Chat">
-    <body onload="connect()">
+    <body >
     <@c.navbar/>
     <noscript>
         <h2 style="color: #ff0000">Seems your browser doesn't support Javascript! Websocket relies on Javascript being
@@ -16,19 +16,7 @@
             <h5 class="p-2">Chat room</h5>
             <div class="col-md-12" id="content" style="height: 600px; overflow-y: scroll">
                 <table id="conversation" class="table table-borderless">
-                    <thead>
-                    </thead>
-                    <tbody id="greetings">
-                    <#if messages??>
-                        <#list messages as message>
-                            <tr>
-                                <th scope="row" style="width: 80px">${message.sender}</th>
-                                <td colspan="2">${message.text}</td>
-                                <td style="text-align: right; width: 180px">${message.dateTime.format(formatter)}</td>
-                            </tr>
-                        </#list>
-                    </#if>
-                    </tbody>
+
                 </table>
             </div>
         </div>

@@ -4,17 +4,18 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import ru.itis.maletskov.internship.model.Chat;
+import ru.itis.maletskov.internship.model.ChatType;
 import ru.itis.maletskov.internship.model.User;
 import ru.itis.maletskov.internship.repository.ChatRepository;
 import ru.itis.maletskov.internship.repository.UserRepository;
 import ru.itis.maletskov.internship.service.ChatService;
+import ru.itis.maletskov.internship.util.comparator.MessageDateTimeComparator;
 import ru.itis.maletskov.internship.util.exception.ChatException;
 import ru.itis.maletskov.internship.util.exception.EntityNotFoundException;
 import ru.itis.maletskov.internship.util.exception.ExceptionMessages;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,9 +24,10 @@ public class ChatServiceImpl implements ChatService {
     private final UserRepository userRepository;
 
     @Override
-    public Chat createChat(String name, String ownerLogin) {
+    public Chat createChat(String name, String ownerLogin, Boolean chatType) {
         Chat chat = new Chat();
         chat.setName(name);
+        chat.setType(chatType ? ChatType.PRIVATE : ChatType.PUBLIC);
         Optional<User> candidate = userRepository.findByLogin(ownerLogin);
         if (candidate.isPresent()) {
             chat.setOwner(candidate.get());
@@ -105,6 +107,15 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public List<Chat> findAllChats() {
-        return chatRepository.findAll();
+        List<Chat> chats = chatRepository.findAll();
+        chats.forEach(c -> c.getMessages().sort(new MessageDateTimeComparator()));
+        return chats;
+    }
+
+    @Override
+    public Chat findChatById(Long chatId) {
+        return chatRepository.findById(chatId).orElseThrow(() ->
+                new EntityNotFoundException(String.format(ExceptionMessages.CHAT_NOT_FOUND_MESSAGE, chatId))
+        );
     }
 }

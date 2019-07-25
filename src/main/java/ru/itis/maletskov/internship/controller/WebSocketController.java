@@ -25,19 +25,20 @@ public class WebSocketController {
     private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 
-    @MessageMapping("/chat")
+   /* @MessageMapping("/chat")
     @SendTo("/topic/messages")
     public Message sendMessage(@Payload Message message) {
         message.setDateTime(LocalDateTime.now());
         messageService.saveMessage(message);
         return message;
-    }
+    }*/
 
-    @MessageMapping("/chat/{id}")
-    @SendTo("/topic/messages/{id}")
-    public Message sendMessageToChat(@DestinationVariable Long id,
+    @MessageMapping("/chat/{chatId}")
+    @SendTo("/topic/messages/{chatId}")
+    public Message sendMessageToChat(@DestinationVariable Long chatId,
                                      @Payload Message message) {
         message.setDateTime(LocalDateTime.now());
+        message.setChat(chatService.findChatById(chatId));
         messageService.saveMessage(message);
         return message;
     }
@@ -56,6 +57,7 @@ public class WebSocketController {
                             Model model) {
         model.addAttribute("chats", chatService.findAllChats());
         model.addAttribute("username", userAuth.getLogin());
+        model.addAttribute("formatter", formatter);
         return "chats";
     }
 

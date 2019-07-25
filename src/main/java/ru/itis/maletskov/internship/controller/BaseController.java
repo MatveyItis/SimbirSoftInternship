@@ -14,4 +14,9 @@ public class BaseController {
     public String homePage() {
         return "ybot";
     }
+
+    @GetMapping("/about")
+    public String aboutPage() {
+        return "about";
+    }
 }

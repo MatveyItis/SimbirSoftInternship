@@ -7,7 +7,9 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -21,17 +23,21 @@ public class Chat {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "chat_name")
+    @Column(name = "chat_name", unique = true)
     private String name;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "chat_type")
+    private ChatType type;
 
     @ManyToMany(mappedBy = "chat")
     @JsonIgnore
-    private Set<Message> messages = new HashSet<>();
+    private List<Message> messages = new ArrayList<>();
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     private Set<User> members = new HashSet<>();
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     private Set<User> moderators = new HashSet<>();
 
     @OneToOne

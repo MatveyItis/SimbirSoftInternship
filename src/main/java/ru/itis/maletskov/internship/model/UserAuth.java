@@ -5,17 +5,20 @@ import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Set;
 
 @Getter
 @Setter
-public class UserAuth implements UserDetails {
+public class UserAuth implements UserDetails, Serializable {
+    private Long id;
     private String login;
     private String password;
     private Set<Role> roles;
 
     public UserAuth(User user) {
+        this.id = user.getId();
         this.login = user.getLogin();
         this.password = user.getPassword();
         this.roles = user.getRoles();
@@ -48,5 +51,9 @@ public class UserAuth implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public boolean isAdmin() {
+        return roles.contains(Role.ADMIN);
     }
 }

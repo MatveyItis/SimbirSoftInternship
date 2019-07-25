@@ -1,6 +1,7 @@
 <#import "./parts/common.ftl" as c>
+
 <@c.common "Chats">
-    <body>
+    <body onload="connect()">
     <@c.navbar/>
     <div class="row container-fluid pt-2" style="justify-content: center">
         <h4>Chats</h4>
@@ -11,56 +12,34 @@
                 <#if chats??>
                     <#list chats as chat>
                         <a class="list-group-item list-group-item-action <#if chat_index = 0>active<#else></#if>"
-                           id="chat-${chat.id}" data-toggle="list"
+                           id="chat-${chat.id}-list" data-toggle="list"
                            href="#chat-${chat.id}" role="tab" aria-controls="chat-${chat.id}">${chat.name}</a>
+                        <input type="hidden" name="chatId" id="chatId" value="${chat.id}">
                     </#list>
                 <#else>
                 </#if>
             </div>
         </div>
         <div class="col-md-9">
-            <div class="tab-content" id="nav-tabContent">
+            <div class="tab-content" id="chat-messages">
                 <#if chats??>
                     <#list chats as chat>
-                        <div class="tab-pane fade show <#if chat_index = 0>active<#else></#if>" id="chat-${chat.id}"
+                        <div class="tab-pane fade <#if chat_index = 0>show active<#else></#if>" id="chat-${chat.id}"
                              role="tabpanel" aria-labelledby="chat-${chat.id}"
                              style="height: 600px; overflow-y: scroll">
                             <table id="conversation" class="table table-borderless">
                                 <thead>
-                                <tr>
-                                    <th scope="row" colspan="4" style="text-align: center">${chat.name}</th>
-                                </tr>
                                 </thead>
                                 <tbody id="greetings">
-                                <tr>
-                                    <th scope="row">admin</th>
-                                    <td colspan="2">Hey guys</td>
-                                    <td style="text-align: right; width: 180px">01-01-2019 14:44</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">tom</th>
-                                    <td colspan="2">Hey admin!</td>
-                                    <td style="text-align: right; width: 180px">01-01-2019 14:45</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">cat</th>
-                                    <td colspan="2">Meow</td>
-                                    <td style="text-align: right; width: 180px">01-01-2019 14:46</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">dog</th>
-                                    <td colspan="2">Haw-haw!</td>
-                                    <td style="text-align: right; width: 180px">01-01-2019 14:47</td>
-                                </tr>
-                                <#--<#if messages??>
-                                    <#list messages as message>
+                                <#if chat.messages??>
+                                    <#list chat.messages as message>
                                         <tr>
                                             <th scope="row" style="width: 80px">${message.sender}</th>
                                             <td colspan="2">${message.text}</td>
                                             <td style="text-align: right; width: 180px">${message.dateTime.format(formatter)}</td>
                                         </tr>
                                     </#list>
-                                </#if>-->
+                                </#if>
                                 </tbody>
                             </table>
                         </div>

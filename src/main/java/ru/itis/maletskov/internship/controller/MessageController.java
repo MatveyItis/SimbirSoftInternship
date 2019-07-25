@@ -24,11 +24,12 @@ public class MessageController {
     @PostMapping(value = "/create_room", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Chat> createRoom(@RequestParam("chatName") String name,
                                            @RequestParam("username") String username,
+                                           @RequestParam("chatType") Boolean chatType,
                                            @AuthenticationPrincipal UserAuth userAuth) {
         if (!username.equals(userAuth.getLogin())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        Chat chat = chatService.createChat(name, userAuth.getLogin());
+        Chat chat = chatService.createChat(name, userAuth.getLogin(), chatType);
         return ResponseEntity.ok().body(chat);
     }
 

@@ -5,7 +5,7 @@ import ru.itis.maletskov.internship.model.Chat;
 import java.util.List;
 
 public interface ChatService {
-    Chat createChat(String name, String ownerLogin);
+    Chat createChat(String name, String ownerLogin, Boolean chatType);
 
     void addUser(Long chatId, String userLogin);
 
@@ -18,4 +18,6 @@ public interface ChatService {
     void renameChat(String chatName, String newChatName);
 
     List<Chat> findAllChats();
+
+    Chat findChatById(Long chatId);
 }

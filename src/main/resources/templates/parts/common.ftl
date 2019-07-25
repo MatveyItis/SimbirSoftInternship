@@ -22,6 +22,17 @@
 </#macro>
 
 <#macro navbar>
+    <#assign known=Session.SPRING_SECURITY_CONTEXT??>
+    <#if known>
+        <#assign user = Session.SPRING_SECURITY_CONTEXT.authentication.principal
+        name = user.getUsername()
+        isAdmin = user.isAdmin()
+        currentUserId = user.getId()>
+    <#else>
+        <#assign name = "unknown"
+        isAdmin = false
+        currentUserId = -1>
+    </#if>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <a class="navbar-brand" href="#"><img src="/img/chat.svg" alt="chat" width="35" height="35">
             <div class="ripple-container"></div>
@@ -48,12 +59,17 @@
                 </li>
 
             </ul>
+            <form class="form-inline my-2 my-lg-0" action="/logout" method="post">
+                <button class="btn btn-dark btn-xs" type="submit"><#if user??>Sign Out<#else>Log in</#if></button>
+            </form>
         </div>
     </nav>
 </#macro>
 
 <#macro scripts>
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js" type="text/javascript"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+            integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+            crossorigin="anonymous"></script>
     <script src="https://unpkg.com/popper.js@1.12.6/dist/umd/popper.js"
             integrity="sha384-fA23ZRQ3G/J53mElWqVJEGJzU0sTs+SvzG8fXVWP+kJQ1lwFAOkcUOysnlKJC33U"
             crossorigin="anonymous"></script>

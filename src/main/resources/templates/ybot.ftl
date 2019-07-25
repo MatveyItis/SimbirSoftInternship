@@ -12,18 +12,18 @@
         <br>
         <form action="/ybot_command" method="post">
             <div class="row">
-                <div class="form-group col-md-9">
+                <div class="form-group col-md-10">
                     <label for="search_request">Youtube Bot</label>
                     <input type="text" class="form-control" id="search_request" name="search_request"
                            placeholder="Enter the command..">
                 </div>
-                <div class="form-group col-md-3 mt-4">
+                <div class="form-group col-md-2 mt-4">
                     <button type="submit" class="btn btn-raised btn-dark">Enter</button>
                 </div>
             </div>
         </form>
     </div>
-    <div class="container col-md-7">
+    <div class="container col-md-6">
         <table class="table table-borderless">
             <tbody>
             <tr>
