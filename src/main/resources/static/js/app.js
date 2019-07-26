@@ -15,12 +15,18 @@ function connect() {
         console.log('Connected: ' + frame);
         let chatsId = document.getElementsByName('chatId');
         for (let i = 0; i < chatsId.length; i++) {
-            stompClient.subscribe('/topic/messages/' + Number(chatsId[i].value), function (message) {
-                console.log("Received message " + message);
-                showMessage(JSON.parse(message.body));
-            });
+            subscribeToChat(Number(chatsId[i].value));
         }
     });
+}
+
+function subscribeToChat(chatId) {
+    if (stompClient !== null) {
+        stompClient.subscribe('/topic/messages/' + Number(chatId), function (message) {
+            console.log("Received message " + message);
+            showMessage(JSON.parse(message.body));
+        });
+    }
 }
 
 function getCurrentChatId() {
@@ -38,7 +44,7 @@ function sendMessage() {
         'text': $("#text").val()
     }));
     textFromTextArea.val('');
-    let objDiv = $("#content");
+    let objDiv = $("#chat-" + currentChatId);
     objDiv.scrollTop = objDiv.scrollHeight;
 }
 
@@ -76,7 +82,7 @@ function showMessage(message) {
             '<td style="text-align: right; width: 180px">' + dateTimeString + '</td>' +
             '</tr>'
         );
-        let objDiv = $(chatDest);
+        let objDiv = $('#chat-' + chatId)[0];
         objDiv.scrollTop = objDiv.scrollHeight;
     }
 }
@@ -86,9 +92,5 @@ $(function () {
         if (event.keyCode === 13) {
             $("#send").click();
         }
-    });
-    $('#chats a').on('click', function (e) {
-        e.preventDefault();
-        $(this).tab('show');
     });
 });

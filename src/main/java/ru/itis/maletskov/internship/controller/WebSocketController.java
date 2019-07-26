@@ -24,15 +24,6 @@ public class WebSocketController {
     private final ChatService chatService;
     private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-
-   /* @MessageMapping("/chat")
-    @SendTo("/topic/messages")
-    public Message sendMessage(@Payload Message message) {
-        message.setDateTime(LocalDateTime.now());
-        messageService.saveMessage(message);
-        return message;
-    }*/
-
     @MessageMapping("/chat/{chatId}")
     @SendTo("/topic/messages/{chatId}")
     public Message sendMessageToChat(@DestinationVariable Long chatId,
@@ -55,7 +46,7 @@ public class WebSocketController {
     @GetMapping("/chats")
     public String chatsPage(@AuthenticationPrincipal UserAuth userAuth,
                             Model model) {
-        model.addAttribute("chats", chatService.findAllChats());
+        model.addAttribute("chats", chatService.findAvailableChatsForUser(userAuth.getUsername()));
         model.addAttribute("username", userAuth.getLogin());
         model.addAttribute("formatter", formatter);
         return "chats";

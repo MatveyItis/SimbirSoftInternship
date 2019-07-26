@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.itis.maletskov.internship.model.Chat;
+import ru.itis.maletskov.internship.model.ChatType;
 import ru.itis.maletskov.internship.model.UserAuth;
 import ru.itis.maletskov.internship.service.ChatService;
 import ru.itis.maletskov.internship.service.MessageService;
@@ -36,7 +37,30 @@ public class MessageController {
     @PostMapping(value = "/remove_room", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity removeRoom(@RequestParam("chatName") String chatName,
                                      @AuthenticationPrincipal UserAuth userAuth) {
-        chatService.deleteChat(chatName);
-        return ResponseEntity.ok().build();
+        Chat chat = chatService.findChatByName(chatName);
+        if (chat != null) {
+            chatService.deleteChat(chatName, userAuth.getUsername());
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping(value = "/connect_room", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Chat> connectRoom(@RequestParam("chatName") String chatName,
+                                            @RequestParam("username") String username,
+                                            @AuthenticationPrincipal UserAuth userAuth) {
+        Chat chat = chatService.findChatByName(chatName);
+        if (chat != null) {
+            if (chat.getType().name().equals(ChatType.PRIVATE.name())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+            if (username.equals(userAuth.getUsername())) {
+                chatService.addUserToChat(chat.getName(), username);
+            }
+            return ResponseEntity.ok().body(chat);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

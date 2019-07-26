@@ -14,7 +14,7 @@
                         <a class="list-group-item list-group-item-action <#if chat_index = 0>active<#else></#if>"
                            id="chat-${chat.id}-list" data-toggle="list"
                            href="#chat-${chat.id}" role="tab" aria-controls="chat-${chat.id}">${chat.name}</a>
-                        <input type="hidden" name="chatId" id="chatId" value="${chat.id}">
+                        <input type="hidden" name="chatId" value="${chat.id}">
                     </#list>
                 <#else>
                 </#if>
@@ -28,8 +28,6 @@
                              role="tabpanel" aria-labelledby="chat-${chat.id}"
                              style="height: 600px; overflow-y: scroll">
                             <table id="conversation" class="table table-borderless">
-                                <thead>
-                                </thead>
                                 <tbody id="greetings">
                                 <#if chat.messages??>
                                     <#list chat.messages as message>
