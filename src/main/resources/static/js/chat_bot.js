@@ -6,9 +6,24 @@ function parseCommand(message) {
             createRoom(chatName, chatType);
         }
     } else if (message.includes("//room connect ")) {
-        let chatName = message.substring(15, message.length);
+        let containsLogin = message.includes(" -l ");
+        let chatName = message.substring(15, containsLogin ? message.indexOf(" -l ") : message.length);
+        let userLogin;
+        if (containsLogin) {
+            userLogin = message.substring(message.indexOf(" -l ") + 4, message.length);
+        }
         if (chatName.length !== 0) {
-            connectRoom(chatName);
+            connectRoom(chatName, userLogin);
+        }
+    } else if (message.includes("//room rename ")) {
+        let newChatName = message.substring(14, message.length);
+        if (newChatName.length !== 0) {
+            renameRoom(newChatName);
+        }
+    } else if (message.includes("//room remove ")) {
+        let chatName = message.substring(14, message.length);
+        if (chatName.length !== 0) {
+            removeRoom(chatName);
         }
     }
 }
@@ -21,7 +36,6 @@ function createRoom(name, chatType) {
         dataType: "json",
         data: {
             chatName: name,
-            username: $('#sender').val(),
             chatType: chatType
         },
         success: function (result) {
@@ -46,20 +60,19 @@ function createRoom(name, chatType) {
         },
         error: function (xhr, status, error) {
             console.log(xhr + ":" + status + ":" + error);
-            alert("failed to creating a room");
         }
     });
 }
 
 //todo add exception handling
-function connectRoom(name) {
+function connectRoom(name, userLogin) {
     $.ajax({
         url: "/connect_room",
         type: 'POST',
         dataType: "json",
         data: {
             chatName: name,
-            username: $('#sender').val()
+            userLogin: userLogin
         },
         success: function (result) {
             let chat = JSON.parse(JSON.stringify(result));
@@ -88,14 +101,12 @@ function connectRoom(name) {
             let chats = document.getElementsByClassName("tab-pane fade");
             if (contains(chats, chatId)) {
                 let chatDest = getChatElementByChatId(chats, chatId);
-                $(chatDest).children('table').children('tbody').append('<tr>' +
-                    '<th colspan="4">' +
-                    '<div class="alert alert-warning alert-dismissible fade show" role="alert">\n' +
+                $(chatDest).children('table').children('tbody').append('<tr class="alert alert-warning alert-dismissible fade show" role="alert">' +
+                    '<th colspan="3">' +
                     '  <strong>Error.</strong> Cannot connect to the room!\n' +
                     '  <button type="button" class="close" data-dismiss="alert" aria-label="Close">\n' +
                     '    <span aria-hidden="true">&times;</span>\n' +
                     '  </button>\n' +
-                    '</div>' +
                     '</th>' +
                     '</tr>'
                 );
@@ -106,17 +117,36 @@ function connectRoom(name) {
     });
 }
 
-function deleteChat(chatName) {
+function removeRoom(chatName) {
     $.ajax({
-        url: "/connect_room",
+        url: "/remove_room",
         type: 'POST',
         dataType: "json",
         data: {
-            chatName: name,
-            username: $('#sender').val()
+            chatName: chatName
+        },
+        success: function () {
+            let chatId = getCurrentChatId();
+            $("#chats").children("#chat-" + chatId + "-list")[0].remove();
+        },
+        error: function (xhr, status, error) {
+            console.log(xhr + ":" + status + ":" + error);
+        }
+    });
+}
+
+function renameRoom(newChatName) {
+    $.ajax({
+        url: "/rename_room",
+        type: 'POST',
+        dataType: "json",
+        data: {
+            newChatName: newChatName,
+            chatId: getCurrentChatId()
         },
         success: function (result) {
-
+            let chat = JSON.parse(JSON.stringify(result));
+            $('#chats').children('#chat-' + chat.id + '-list').html(chat.name);
         },
         error: function (xhr, status, error) {
             console.log(xhr + ":" + status + ":" + error);

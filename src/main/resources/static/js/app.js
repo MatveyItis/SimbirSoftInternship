@@ -16,6 +16,8 @@ function connect() {
         let chatsId = document.getElementsByName('chatId');
         for (let i = 0; i < chatsId.length; i++) {
             subscribeToChat(Number(chatsId[i].value));
+            let objDiv = $('#chat-' + Number(chatsId[i].value))[0];
+            objDiv.scrollTop = objDiv.scrollHeight;
         }
     });
 }
@@ -36,16 +38,18 @@ function getCurrentChatId() {
 }
 
 function sendMessage() {
-    let textFromTextArea = $("textarea");
-    parseCommand(textFromTextArea.val());
+    let message = $("textarea");
     let currentChatId = getCurrentChatId();
-    stompClient.send("/app/chat/" + currentChatId, {}, JSON.stringify({
-        'sender': $('#sender').val(),
-        'text': $("#text").val()
-    }));
-    textFromTextArea.val('');
-    let objDiv = $("#chat-" + currentChatId);
-    objDiv.scrollTop = objDiv.scrollHeight;
+    if (!(/^\s+$/.test(message.val()))) {
+        stompClient.send("/app/chat/" + currentChatId, {}, JSON.stringify({
+            'sender': $('#sender').val(),
+            'text': message.val()
+        }));
+        setTimeout(parseCommand, 200, message.val());
+        message.val('');
+        let objDiv = $("#chat-" + currentChatId);
+        objDiv.scrollTop = objDiv.scrollHeight;
+    }
 }
 
 function contains(arr, elem) {
@@ -89,7 +93,9 @@ function showMessage(message) {
 
 $(function () {
     $("#text").keyup(function (event) {
-        if (event.keyCode === 13) {
+        if (event.shiftKey && event.keyCode === 13) {
+
+        } else if (event.keyCode === 13) {
             $("#send").click();
         }
     });

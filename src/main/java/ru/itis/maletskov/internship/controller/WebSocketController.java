@@ -34,15 +34,6 @@ public class WebSocketController {
         return message;
     }
 
-    @GetMapping("/chat")
-    public String chatPage(@AuthenticationPrincipal UserAuth userAuth,
-                           Model model) {
-        model.addAttribute("username", userAuth.getLogin());
-        model.addAttribute("messages", messageService.findAllMessages());
-        model.addAttribute("formatter", formatter);
-        return "chat";
-    }
-
     @GetMapping("/chats")
     public String chatsPage(@AuthenticationPrincipal UserAuth userAuth,
                             Model model) {

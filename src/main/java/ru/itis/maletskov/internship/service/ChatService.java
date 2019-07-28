@@ -7,7 +7,7 @@ import java.util.List;
 public interface ChatService {
     Chat createChat(String name, String ownerLogin, Boolean chatType);
 
-    void addUserToChat(String chatName, String userLogin);
+    void addUserToChat(String chatName, String username, String otherUsername);
 
     void nominateToModerator(Long chatId, String userLogin);
 
@@ -15,7 +15,7 @@ public interface ChatService {
 
     void deleteChat(String chatName, String username);
 
-    void renameChat(String chatName, String newChatName);
+    Chat renameChat(Chat chat, String newChatName, String username);
 
     List<Chat> findAllChats();
 

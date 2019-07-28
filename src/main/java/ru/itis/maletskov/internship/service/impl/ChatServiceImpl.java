@@ -9,6 +9,7 @@ import ru.itis.maletskov.internship.model.User;
 import ru.itis.maletskov.internship.repository.ChatRepository;
 import ru.itis.maletskov.internship.repository.UserRepository;
 import ru.itis.maletskov.internship.service.ChatService;
+import ru.itis.maletskov.internship.util.comparator.ChatIdComparator;
 import ru.itis.maletskov.internship.util.comparator.MessageDateTimeComparator;
 import ru.itis.maletskov.internship.util.exception.ChatException;
 import ru.itis.maletskov.internship.util.exception.EntityNotFoundException;
@@ -44,15 +45,20 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public void addUserToChat(String chatName, String userLogin) {
+    public void addUserToChat(String chatName, String username, String otherUsername) {
         Optional<Chat> chatCandidate = chatRepository.findChatByName(chatName);
         if (chatCandidate.isPresent()) {
             Chat chat = chatCandidate.get();
-            Optional<User> userCandidate = userRepository.findByLogin(userLogin);
-            chat.getMembers().add(userCandidate.orElseThrow(() ->
-                            new UsernameNotFoundException(String.format("Cannot add user to chat. User with login: %s is not found", userLogin))
-                    )
-            );
+            Optional<User> userCandidate = userRepository.findByLogin(username);
+            Optional<User> otherUserCandidate = userRepository.findByLogin(otherUsername);
+            boolean usersPresented = userCandidate.isPresent() && otherUserCandidate.isPresent();
+            if (usersPresented && (chat.getOwner().equals(userCandidate.get()) || chat.getAdmin().equals(userCandidate.get()))) {
+                chat.getMembers().add(otherUserCandidate.get());
+            } else if (chat.getType() != ChatType.PRIVATE) {
+                userCandidate.ifPresent(user -> chat.getMembers().add(user));
+            } else {
+                throw new ChatException("Cannot add user to chat");
+            }
             chatRepository.save(chat);
         } else {
             throw new EntityNotFoundException(String.format(ExceptionMessages.CHAT_NOT_FOUND_MESSAGE, chatName));
@@ -94,23 +100,24 @@ public class ChatServiceImpl implements ChatService {
     public void deleteChat(String chatName, String username) {
         Optional<Chat> chatCandidate = chatRepository.findChatByName(chatName);
         Optional<User> userCandidate = userRepository.findByLogin(username);
-        if (chatCandidate.isPresent() && userCandidate.isPresent() &&
-                (chatCandidate.get().getAdmin().equals(userCandidate.get()) ||
-                        chatCandidate.get().getOwner().equals(userCandidate.get()))) {
-            chatRepository.delete(chatCandidate.get());
+        if (chatCandidate.isPresent() && userCandidate.isPresent() && ((chatCandidate.get().getAdmin() != null &&
+                chatCandidate.get().getAdmin().equals(userCandidate.get())) || chatCandidate.get().getOwner().equals(userCandidate.get()))) {
+            chatRepository.deleteChatById(chatCandidate.get().getId());
         }
     }
 
     @Override
-    public void renameChat(String chatName, String newChatName) {
-        Optional<Chat> chatCandidate = chatRepository.findChatByName(chatName);
-        if (chatCandidate.isPresent()) {
-            Chat chat = chatCandidate.get();
-            if (chatRepository.existsChatByName(newChatName)) {
-                throw new ChatException(String.format(ExceptionMessages.CHAT_ALREADY_EXISTS_MESSAGE, newChatName));
-            } else {
+    public Chat renameChat(Chat chat, String newChatName, String username) {
+        if (chatRepository.existsChatByName(newChatName)) {
+            throw new ChatException(String.format(ExceptionMessages.CHAT_ALREADY_EXISTS_MESSAGE, newChatName));
+        } else {
+            Optional<User> userCandidate = userRepository.findByLogin(username);
+            if (userCandidate.isPresent() && (chat.getOwner().equals(userCandidate.get()) ||
+                    chat.getAdmin().equals(userCandidate.get()))) {
                 chat.setName(newChatName);
-                chatRepository.save(chat);
+                return chatRepository.save(chat);
+            } else {
+                return chat;
             }
         }
     }
@@ -124,7 +131,10 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public List<Chat> findAvailableChatsForUser(String username) {
-        return chatRepository.findChatsByMembersContains(userRepository.findByLogin(username).orElse(null));
+        List<Chat> chats = chatRepository.findChatsByMembersContains(
+                userRepository.findByLogin(username).orElse(null));
+        chats.sort(new ChatIdComparator());
+        return chats;
     }
 
     @Override

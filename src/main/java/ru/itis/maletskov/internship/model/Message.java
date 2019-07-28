@@ -20,6 +20,10 @@ public class Message {
     @Column(name = "text", nullable = false, length = 1024)
     private String text;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "message_type")
+    private MessageType type;
+
     @Column(name = "sender")
     private String sender;
 

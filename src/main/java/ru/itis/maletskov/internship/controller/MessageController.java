@@ -24,12 +24,8 @@ public class MessageController {
 
     @PostMapping(value = "/create_room", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Chat> createRoom(@RequestParam("chatName") String name,
-                                           @RequestParam("username") String username,
                                            @RequestParam("chatType") Boolean chatType,
                                            @AuthenticationPrincipal UserAuth userAuth) {
-        if (!username.equals(userAuth.getLogin())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
         Chat chat = chatService.createChat(name, userAuth.getLogin(), chatType);
         return ResponseEntity.ok().body(chat);
     }
@@ -48,19 +44,38 @@ public class MessageController {
 
     @PostMapping(value = "/connect_room", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Chat> connectRoom(@RequestParam("chatName") String chatName,
-                                            @RequestParam("username") String username,
+                                            @RequestParam(value = "userLogin", required = false) String userLogin,
                                             @AuthenticationPrincipal UserAuth userAuth) {
         Chat chat = chatService.findChatByName(chatName);
         if (chat != null) {
             if (chat.getType().name().equals(ChatType.PRIVATE.name())) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
-            if (username.equals(userAuth.getUsername())) {
-                chatService.addUserToChat(chat.getName(), username);
-            }
+            chatService.addUserToChat(chat.getName(), userAuth.getUsername(), userLogin);
             return ResponseEntity.ok().body(chat);
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @PostMapping(value = "/rename_room", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Chat> renameRoom(@RequestParam("newChatName") String newChatName,
+                                           @RequestParam("chatId") Long chatId,
+                                           @AuthenticationPrincipal UserAuth userAuth) {
+        Chat chat = chatService.findChatById(chatId);
+        if (chat != null) {
+            return ResponseEntity.ok(chatService.renameChat(chat, newChatName, userAuth.getUsername()));
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping(value = "/disconnect_room", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity disconnectRoom(@RequestParam(value = "chatName", required = false) String chatName,
+                                         @RequestParam("chatId") Long chatId,
+                                         @RequestParam("userLogin") String userLogin,
+                                         @RequestParam("minuteCount") String minute,
+                                         @AuthenticationPrincipal UserAuth userAuth) {
+        return ResponseEntity.ok().build();
     }
 }

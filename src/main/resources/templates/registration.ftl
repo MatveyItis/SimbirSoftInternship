@@ -1,7 +1,7 @@
 <#import "parts/common.ftl" as c>
 <#import "/spring.ftl" as spring>
 
-<@c.common "Login">
+<@c.common "Registration">
     <body>
     <@c.navbar/>
     <div class="container pt-5 col-md-5">
