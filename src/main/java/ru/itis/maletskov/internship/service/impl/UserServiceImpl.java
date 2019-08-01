@@ -24,9 +24,7 @@ public class UserServiceImpl implements UserService {
     public List<UserDto> getAllUsers() {
         List<User> users = userRepository.findAll();
         List<UserDto> dtos = new ArrayList<>();
-        if (users != null && !users.isEmpty()) {
-            users.forEach(u -> dtos.add(UserDto.fromUserToDto(u)));
-        }
+        users.forEach(u -> dtos.add(UserDto.fromUserToDto(u)));
         return dtos;
     }
 

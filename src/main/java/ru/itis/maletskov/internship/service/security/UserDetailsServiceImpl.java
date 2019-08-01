@@ -19,10 +19,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String login) {
         Optional<User> candidate = userRepository.findByLogin(login);
-        if (candidate.isPresent()) {
-            return new UserAuth(candidate.get());
-        } else {
+        if (!candidate.isPresent()) {
             throw new UsernameNotFoundException("User with login: " + login + " is not found");
         }
+        return new UserAuth(candidate.get());
     }
 }

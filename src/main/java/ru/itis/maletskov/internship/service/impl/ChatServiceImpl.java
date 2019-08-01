@@ -34,69 +34,64 @@ public class ChatServiceImpl implements ChatService {
         chat.setCreatedChatDate(LocalDateTime.now());
         chat.setType(chatType ? ChatType.PRIVATE : ChatType.PUBLIC);
         Optional<User> candidate = userRepository.findByLogin(ownerLogin);
-        if (candidate.isPresent()) {
-            chat.setOwner(candidate.get());
-            chat.setMembers(Collections.singleton(candidate.get()));
-            if (!chatRepository.existsChatByName(name)) {
-                return ChatDto.fromChatToDto(chatRepository.save(chat));
-            } else {
-                throw new ChatException(String.format(ExceptionMessages.CHAT_ALREADY_EXISTS_MESSAGE, name));
-            }
-        } else {
+        if (!candidate.isPresent()) {
             throw new UsernameNotFoundException(String.format("Cannot create chat. User with login: %s is not found", ownerLogin));
         }
+        chat.setOwner(candidate.get());
+        chat.setMembers(Collections.singleton(candidate.get()));
+        if (chatRepository.existsChatByName(name)) {
+            throw new ChatException(String.format(ExceptionMessages.CHAT_ALREADY_EXISTS_MESSAGE, name));
+        }
+        return ChatDto.fromChatToDto(chatRepository.save(chat));
     }
 
     @Override
     public ChatDto addUserToChat(String chatName, String username, String otherUsername) {
         Optional<Chat> chatCandidate = chatRepository.findChatByName(chatName);
-        if (chatCandidate.isPresent()) {
-            Chat chat = chatCandidate.get();
-            Optional<User> userCandidate = userRepository.findByLogin(username);
-            Optional<User> otherUserCandidate = userRepository.findByLogin(otherUsername);
-            boolean usersPresented = userCandidate.isPresent() && otherUserCandidate.isPresent();
-            if (usersPresented && (chat.getOwner().equals(userCandidate.get()) || chat.getAdmin().equals(userCandidate.get()))) {
-                chat.getMembers().add(otherUserCandidate.get());
-            } else if (chat.getType() != ChatType.PRIVATE) {
-                userCandidate.ifPresent(user -> chat.getMembers().add(user));
-            } else {
-                throw new ChatException("Cannot add user to chat");
-            }
-            return ChatDto.fromChatToDto(chatRepository.save(chat));
-        } else {
+        if (!chatCandidate.isPresent()) {
             throw new EntityNotFoundException(String.format(ExceptionMessages.CHAT_NOT_FOUND_MESSAGE, chatName));
         }
+        Chat chat = chatCandidate.get();
+        Optional<User> userCandidate = userRepository.findByLogin(username);
+        Optional<User> otherUserCandidate = userRepository.findByLogin(otherUsername);
+        boolean usersPresented = userCandidate.isPresent() && otherUserCandidate.isPresent();
+        if (usersPresented && (chat.getOwner().equals(userCandidate.get()) || chat.getAdmin().equals(userCandidate.get()))) {
+            chat.getMembers().add(otherUserCandidate.get());
+        } else if (chat.getType() != ChatType.PRIVATE) {
+            userCandidate.ifPresent(user -> chat.getMembers().add(user));
+        } else {
+            throw new ChatException("Cannot add user to chat");
+        }
+        return ChatDto.fromChatToDto(chatRepository.save(chat));
     }
 
     @Override
     public void nominateToModerator(Long chatId, String userLogin) {
         Optional<Chat> chatCandidate = chatRepository.findById(chatId);
-        if (chatCandidate.isPresent()) {
-            Chat chat = chatCandidate.get();
-            Optional<User> userCandidate = userRepository.findByLogin(userLogin);
-            chat.getModerators().add(userCandidate.orElseThrow(() ->
-                            new UsernameNotFoundException(
-                                    String.format("Cannot assign user to role MODERATOR. User with login: %s is not found", userLogin)
-                            )
-                    )
-            );
-            chatRepository.save(chat);
-        } else {
+        if (!chatCandidate.isPresent()) {
             throw new EntityNotFoundException(String.format(ExceptionMessages.CHAT_NOT_FOUND_MESSAGE, chatId));
         }
+        Chat chat = chatCandidate.get();
+        Optional<User> userCandidate = userRepository.findByLogin(userLogin);
+        chat.getModerators().add(userCandidate.orElseThrow(() ->
+                        new UsernameNotFoundException(
+                                String.format("Cannot assign user to role MODERATOR. User with login: %s is not found", userLogin)
+                        )
+                )
+        );
+        chatRepository.save(chat);
     }
 
     @Override
     public void downgradeToUser(Long chatId, String userLogin) {
         Optional<Chat> chatCandidate = chatRepository.findById(chatId);
-        if (chatCandidate.isPresent()) {
-            Chat chat = chatCandidate.get();
-            Optional<User> userCandidate = userRepository.findByLogin(userLogin);
-            userCandidate.ifPresent(user -> chat.getModerators().remove(user));
-            chatRepository.save(chat);
-        } else {
+        if (!chatCandidate.isPresent()) {
             throw new EntityNotFoundException(String.format(ExceptionMessages.CHAT_NOT_FOUND_MESSAGE, chatId));
         }
+        Chat chat = chatCandidate.get();
+        Optional<User> userCandidate = userRepository.findByLogin(userLogin);
+        userCandidate.ifPresent(user -> chat.getModerators().remove(user));
+        chatRepository.save(chat);
     }
 
     @Override
@@ -114,7 +109,9 @@ public class ChatServiceImpl implements ChatService {
         Optional<Chat> chatCandidate = chatRepository.findById(chatId);
         if (chatRepository.existsChatByName(newChatName)) {
             throw new ChatException(String.format(ExceptionMessages.CHAT_ALREADY_EXISTS_MESSAGE, newChatName));
-        } else if (chatCandidate.isPresent()) {
+        } else if (!chatCandidate.isPresent()) {
+            throw new EntityNotFoundException(String.format(ExceptionMessages.CHAT_NOT_FOUND_MESSAGE, chatId));
+        } else {
             Chat chat = chatCandidate.get();
             Optional<User> userCandidate = userRepository.findByLogin(username);
             if (userCandidate.isPresent() && (chat.getOwner().equals(userCandidate.get()) ||
@@ -124,8 +121,6 @@ public class ChatServiceImpl implements ChatService {
             } else {
                 return ChatDto.fromChatToDto(chat);
             }
-        } else {
-            throw new EntityNotFoundException(String.format(ExceptionMessages.CHAT_NOT_FOUND_MESSAGE, chatId));
         }
     }
 
@@ -150,21 +145,19 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public ChatDto findChatById(Long chatId) {
         Optional<Chat> chatCandidate = chatRepository.findById(chatId);
-        if (chatCandidate.isPresent()) {
-            return ChatDto.fromChatToDto(chatCandidate.get());
-        } else {
+        if (!chatCandidate.isPresent()) {
             throw new EntityNotFoundException(String.format(ExceptionMessages.CHAT_NOT_FOUND_MESSAGE, chatId));
         }
+        return ChatDto.fromChatToDto(chatCandidate.get());
     }
 
     @Override
     public ChatDto findChatByName(String chatName) {
         Optional<Chat> chatCandidate = chatRepository.findChatByName(chatName);
-        if (chatCandidate.isPresent()) {
-            return ChatDto.fromChatToDto(chatCandidate.get());
-        } else {
+        if (!chatCandidate.isPresent()) {
             throw new EntityNotFoundException(String.format(ExceptionMessages.CHAT_NOT_FOUND_MESSAGE, chatName));
         }
+        return ChatDto.fromChatToDto(chatCandidate.get());
     }
 
     @Override

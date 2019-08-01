@@ -38,9 +38,7 @@ public class MessageServiceImpl implements MessageService {
     public List<MessageDto> findAllMessages() {
         List<Message> messages = messageRepository.findAll(new Sort(Sort.Direction.ASC, "dateTime"));
         List<MessageDto> dtos = new ArrayList<>();
-        if (messages != null && !messages.isEmpty()) {
-            messages.forEach(m -> dtos.add(MessageDto.fromMessageToDto(m)));
-        }
+        messages.forEach(m -> dtos.add(MessageDto.fromMessageToDto(m)));
         return dtos;
     }
 }
