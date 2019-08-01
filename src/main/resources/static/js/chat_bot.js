@@ -1,4 +1,4 @@
-function parseCommand(message) {
+/*function parseCommand(message) {
     if (message.includes("//room create ")) {
         let chatName = message.substring(message.includes(" -c ") ? 17 : 14, message.length);
         let chatType = message.includes(" -c ");
@@ -26,7 +26,7 @@ function parseCommand(message) {
             removeRoom(chatName);
         }
     }
-}
+}*/
 
 //todo add exception handling
 function createRoom(name, chatType) {
@@ -50,7 +50,7 @@ function createRoom(name, chatType) {
             $('#chat-messages').append(
                 '<div class="tab-pane fade " id="chat-' + chat.id + '"\n' +
                 '   role="tabpanel" ' +
-                '   style="height: 600px; overflow-y: scroll">\n' +
+                '   style="height: 550px; overflow-y: scroll">\n' +
                 '   <table id="conversation" class="table table-borderless">\n' +
                 '      <tbody id="greetings">\n' +
                 '      </tbody>\n' +
@@ -86,7 +86,7 @@ function connectRoom(name, userLogin) {
             $('#chat-messages').append(
                 '<div class="tab-pane fade " id="chat-' + chat.id + '"\n' +
                 '   role="tabpanel" ' +
-                '   style="height: 600px; overflow-y: scroll">\n' +
+                '   style="height: 550px; overflow-y: scroll">\n' +
                 '   <table id="conversation" class="table table-borderless">\n' +
                 '      <tbody id="greetings">\n' +
                 '      </tbody>\n' +

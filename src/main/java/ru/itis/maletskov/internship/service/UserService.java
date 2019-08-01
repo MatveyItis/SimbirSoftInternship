@@ -1,13 +1,12 @@
 package ru.itis.maletskov.internship.service;
 
-import org.springframework.security.core.userdetails.UserDetailsService;
+import ru.itis.maletskov.internship.dto.UserDto;
 import ru.itis.maletskov.internship.form.UserForm;
-import ru.itis.maletskov.internship.model.User;
 
 import java.util.List;
 
-public interface UserService extends UserDetailsService {
-    List<User> getAllUsers();
+public interface UserService {
+    List<UserDto> getAllUsers();
 
-    User createUser(UserForm userForm);
+    UserDto createUser(UserForm userForm);
 }

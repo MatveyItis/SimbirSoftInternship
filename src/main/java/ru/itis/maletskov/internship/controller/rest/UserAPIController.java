@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.itis.maletskov.internship.model.User;
+import ru.itis.maletskov.internship.dto.UserDto;
 import ru.itis.maletskov.internship.service.UserService;
 
 import java.util.List;
@@ -19,8 +19,8 @@ public class UserAPIController {
     private final UserService userService;
 
     @GetMapping(value = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<User>> userList() {
-        List<User> users = userService.getAllUsers();
+    public ResponseEntity<List<UserDto>> userList() {
+        List<UserDto> users = userService.getAllUsers();
         if (users == null || users.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }

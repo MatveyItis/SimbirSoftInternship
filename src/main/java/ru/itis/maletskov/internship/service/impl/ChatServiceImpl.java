@@ -3,6 +3,7 @@ package ru.itis.maletskov.internship.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import ru.itis.maletskov.internship.dto.ChatDto;
 import ru.itis.maletskov.internship.model.Chat;
 import ru.itis.maletskov.internship.model.ChatType;
 import ru.itis.maletskov.internship.model.User;
@@ -10,11 +11,12 @@ import ru.itis.maletskov.internship.repository.ChatRepository;
 import ru.itis.maletskov.internship.repository.UserRepository;
 import ru.itis.maletskov.internship.service.ChatService;
 import ru.itis.maletskov.internship.util.comparator.ChatIdComparator;
-import ru.itis.maletskov.internship.util.comparator.MessageDateTimeComparator;
 import ru.itis.maletskov.internship.util.exception.ChatException;
 import ru.itis.maletskov.internship.util.exception.EntityNotFoundException;
 import ru.itis.maletskov.internship.util.exception.ExceptionMessages;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -26,16 +28,17 @@ public class ChatServiceImpl implements ChatService {
     private final UserRepository userRepository;
 
     @Override
-    public Chat createChat(String name, String ownerLogin, Boolean chatType) {
+    public ChatDto createChat(String name, String ownerLogin, Boolean chatType) {
         Chat chat = new Chat();
         chat.setName(name);
+        chat.setCreatedChatDate(LocalDateTime.now());
         chat.setType(chatType ? ChatType.PRIVATE : ChatType.PUBLIC);
         Optional<User> candidate = userRepository.findByLogin(ownerLogin);
         if (candidate.isPresent()) {
             chat.setOwner(candidate.get());
             chat.setMembers(Collections.singleton(candidate.get()));
             if (!chatRepository.existsChatByName(name)) {
-                return chatRepository.save(chat);
+                return ChatDto.fromChatToDto(chatRepository.save(chat));
             } else {
                 throw new ChatException(String.format(ExceptionMessages.CHAT_ALREADY_EXISTS_MESSAGE, name));
             }
@@ -45,7 +48,7 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public void addUserToChat(String chatName, String username, String otherUsername) {
+    public ChatDto addUserToChat(String chatName, String username, String otherUsername) {
         Optional<Chat> chatCandidate = chatRepository.findChatByName(chatName);
         if (chatCandidate.isPresent()) {
             Chat chat = chatCandidate.get();
@@ -59,7 +62,7 @@ public class ChatServiceImpl implements ChatService {
             } else {
                 throw new ChatException("Cannot add user to chat");
             }
-            chatRepository.save(chat);
+            return ChatDto.fromChatToDto(chatRepository.save(chat));
         } else {
             throw new EntityNotFoundException(String.format(ExceptionMessages.CHAT_NOT_FOUND_MESSAGE, chatName));
         }
@@ -107,45 +110,65 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public Chat renameChat(Chat chat, String newChatName, String username) {
+    public ChatDto renameChat(Long chatId, String newChatName, String username) {
+        Optional<Chat> chatCandidate = chatRepository.findById(chatId);
         if (chatRepository.existsChatByName(newChatName)) {
             throw new ChatException(String.format(ExceptionMessages.CHAT_ALREADY_EXISTS_MESSAGE, newChatName));
-        } else {
+        } else if (chatCandidate.isPresent()) {
+            Chat chat = chatCandidate.get();
             Optional<User> userCandidate = userRepository.findByLogin(username);
             if (userCandidate.isPresent() && (chat.getOwner().equals(userCandidate.get()) ||
                     chat.getAdmin().equals(userCandidate.get()))) {
                 chat.setName(newChatName);
-                return chatRepository.save(chat);
+                return ChatDto.fromChatToDto(chatRepository.save(chat));
             } else {
-                return chat;
+                return ChatDto.fromChatToDto(chat);
             }
+        } else {
+            throw new EntityNotFoundException(String.format(ExceptionMessages.CHAT_NOT_FOUND_MESSAGE, chatId));
         }
     }
 
     @Override
-    public List<Chat> findAllChats() {
+    public List<ChatDto> findAllChats() {
         List<Chat> chats = chatRepository.findAll();
-        chats.forEach(c -> c.getMessages().sort(new MessageDateTimeComparator()));
-        return chats;
+        List<ChatDto> chatsDto = new ArrayList<>();
+        chats.forEach(c -> chatsDto.add(ChatDto.fromChatToDto(c)));
+        return chatsDto;
     }
 
     @Override
-    public List<Chat> findAvailableChatsForUser(String username) {
+    public List<ChatDto> findAvailableChatsForUser(String username) {
         List<Chat> chats = chatRepository.findChatsByMembersContains(
                 userRepository.findByLogin(username).orElse(null));
         chats.sort(new ChatIdComparator());
-        return chats;
+        List<ChatDto> chatsDto = new ArrayList<>();
+        chats.forEach(c -> chatsDto.add(ChatDto.fromChatToDto(c)));
+        return chatsDto;
     }
 
     @Override
-    public Chat findChatById(Long chatId) {
-        return chatRepository.findById(chatId).orElseThrow(() ->
-                new EntityNotFoundException(String.format(ExceptionMessages.CHAT_NOT_FOUND_MESSAGE, chatId))
-        );
+    public ChatDto findChatById(Long chatId) {
+        Optional<Chat> chatCandidate = chatRepository.findById(chatId);
+        if (chatCandidate.isPresent()) {
+            return ChatDto.fromChatToDto(chatCandidate.get());
+        } else {
+            throw new EntityNotFoundException(String.format(ExceptionMessages.CHAT_NOT_FOUND_MESSAGE, chatId));
+        }
     }
 
     @Override
-    public Chat findChatByName(String chatName) {
-        return chatRepository.findChatByName(chatName).orElse(null);
+    public ChatDto findChatByName(String chatName) {
+        Optional<Chat> chatCandidate = chatRepository.findChatByName(chatName);
+        if (chatCandidate.isPresent()) {
+            return ChatDto.fromChatToDto(chatCandidate.get());
+        } else {
+            throw new EntityNotFoundException(String.format(ExceptionMessages.CHAT_NOT_FOUND_MESSAGE, chatName));
+        }
+    }
+
+    @Override
+    public Boolean existsChatById(Long id) {
+        return chatRepository.existsChatById(id);
     }
 }

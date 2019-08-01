@@ -16,7 +16,8 @@
             </div>
             <div class="form-group">
                 <label for="password">Password</label>
-                <@spring.formPasswordInput "userForm.password" 'class="form-control" id="password" placeholder="Enter password"' />
+                <@spring.formPasswordInput "userForm.password" 'class="form-control" id="password"
+                placeholder="Enter password" minlength="6" maxlength="20"' />
                 <@spring.showErrors "userForm.password"/>
             </div>
             <button type="submit" class="btn btn-primary">Submit</button>

@@ -15,6 +15,8 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
 
     Boolean existsChatByName(String name);
 
+    Boolean existsChatById(Long id);
+
     List<Chat> findChatsByMembersContains(User user);
 
     @Query(value = "delete from chat where id = ?", nativeQuery = true)

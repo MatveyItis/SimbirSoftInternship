@@ -7,8 +7,8 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import ru.itis.maletskov.internship.service.impl.UserServiceImpl;
 
 @Configuration
 @EnableWebSecurity
@@ -16,7 +16,7 @@ import ru.itis.maletskov.internship.service.impl.UserServiceImpl;
 @RequiredArgsConstructor
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final PasswordEncoder passwordEncoder;
-    private final UserServiceImpl userService;
+    private final UserDetailsService userService;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {

@@ -25,21 +25,100 @@
                 <#if chats??>
                     <#list chats as chat>
                         <div class="tab-pane fade <#if chat_index = 0>show active<#else></#if>" id="chat-${chat.id}"
-                             role="tabpanel" aria-labelledby="chat-${chat.id}"
-                             style="height: 600px; overflow-y: scroll">
-                            <table id="conversation" class="table table-borderless">
-                                <tbody id="greetings">
-                                <#if chat.messages??>
-                                    <#list chat.messages as message>
-                                        <tr>
-                                            <th scope="row" style="width: 80px">${message.sender}</th>
-                                            <td colspan="2">${message.text}</td>
-                                            <td style="text-align: right; width: 180px">${message.dateTime.format(formatter)}</td>
-                                        </tr>
-                                    </#list>
-                                </#if>
-                                </tbody>
-                            </table>
+                             role="tabpanel" aria-labelledby="chat-${chat.id}">
+                            <div class="row justify-content-between">
+                                <h6 class="font-weight-light pl-4 mt-2">${chat.name}</h6>
+                                <div class="btn-group-sm">
+                                    <button type="button" class="btn btn-sm btn-primary dropdown-toggle"
+                                            data-toggle="dropdown"
+                                            aria-haspopup="true" aria-expanded="false">
+                                        Settings
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <button class="dropdown-item" data-toggle="modal"
+                                                data-target="#chat-members-${chat.id}">Members
+                                        </button>
+                                        <button class="dropdown-item" data-toggle="modal"
+                                                data-target="#chat-info-${chat.id}">Info
+                                        </button>
+                                        <div class="dropdown-divider"></div>
+                                        <button class="dropdown-item" href="#">Exit</button>
+                                    </div>
+                                </div>
+                                <!-- Modal for chat-members-${chat.id} -->
+                                <div class="modal fade" id="chat-members-${chat.id}" tabindex="-1" role="dialog"
+                                     aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="exampleModalLongTitle">Chat members</h5>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                        aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="container">
+                                                    <#list chat.members as member>
+                                                        <div class="row justify-content-between"><b>${member.login}</b>
+                                                            <#if chat.admin?? && chat.admin.login = member.login>
+                                                                <small>ADMIN</small></#if>
+                                                            <#if chat.owner.login = member.login>
+                                                                <small>OWNER</small></#if>
+                                                        </div>
+                                                    </#list>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                                    Close
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Modal for chat-info-${chat.id} -->
+                                <div class="modal fade" id="chat-info-${chat.id}" tabindex="-1" role="dialog"
+                                     aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="exampleModalLongTitle">Chat info</h5>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                        aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="container">
+
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                                    Close
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="container" style="height: 550px; overflow-y: scroll"
+                                 id="scroll-chat-${chat.id}">
+                                <table id="conversation" class="table table-borderless">
+                                    <tbody id="greetings">
+                                    <#if chat.messages??>
+                                        <#list chat.messages as message>
+                                            <tr>
+                                                <th scope="row" style="width: 80px">${message.sender}</th>
+                                                <td colspan="2">${message.text}</td>
+                                                <td style="text-align: right; width: 180px">${message.dateTime.format(formatter)}</td>
+                                            </tr>
+                                        </#list>
+                                    </#if>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </#list>
                 <#else>

@@ -2,27 +2,38 @@ package ru.itis.maletskov.internship.dto;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.springframework.format.annotation.DateTimeFormat;
+import ru.itis.maletskov.internship.form.MessageForm;
 import ru.itis.maletskov.internship.model.Message;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@ToString
 public class MessageDto {
     private String text;
     private String sender;
-    private String type;
     private Long chatId;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime dateTime;
 
     public static MessageDto fromMessageToDto(Message message) {
-        MessageDto messageDto = new MessageDto();
-        messageDto.setText(message.getText());
-        messageDto.setSender(message.getSender());
-        messageDto.setChatId(message.getChat().getId());
-        messageDto.setDateTime(message.getDateTime());
-        return messageDto;
+        MessageDto dto = new MessageDto();
+        dto.setText(message.getText());
+        dto.setSender(message.getSender());
+        dto.setChatId(message.getChat().getId());
+        dto.setDateTime(message.getDateTime());
+        return dto;
+    }
+
+    public static MessageDto fromFormToDto(MessageForm form) {
+        MessageDto dto = new MessageDto();
+        dto.setText(form.getText());
+        dto.setSender(form.getSender());
+        dto.setChatId(form.getChatId());
+        dto.setDateTime(form.getDateTime());
+        return dto;
     }
 }

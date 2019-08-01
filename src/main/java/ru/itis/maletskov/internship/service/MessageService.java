@@ -1,13 +1,14 @@
 package ru.itis.maletskov.internship.service;
 
-import ru.itis.maletskov.internship.model.Message;
+import ru.itis.maletskov.internship.dto.MessageDto;
+import ru.itis.maletskov.internship.form.MessageForm;
 
 import java.util.List;
 
 public interface MessageService {
-    Message saveMessage(Message message);
+    MessageDto saveMessage(MessageForm messageForm);
 
-    void deleteMessage(Message message);
+    void deleteMessageById(Long id);
 
-    List<Message> findAllMessages();
+    List<MessageDto> findAllMessages();
 }

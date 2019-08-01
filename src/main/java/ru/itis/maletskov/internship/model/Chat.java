@@ -7,6 +7,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -46,4 +47,6 @@ public class Chat {
     @OneToOne
     private User admin;
 
+    @Column(name = "created_chat_date")
+    private LocalDateTime createdChatDate;
 }

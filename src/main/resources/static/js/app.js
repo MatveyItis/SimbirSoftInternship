@@ -16,17 +16,15 @@ function connect() {
         let chatsId = document.getElementsByName('chatId');
         for (let i = 0; i < chatsId.length; i++) {
             subscribeToChat(Number(chatsId[i].value));
-            let objDiv = $('#chat-' + Number(chatsId[i].value))[0];
-            objDiv.scrollTop = objDiv.scrollHeight;
         }
     });
 }
 
 function subscribeToChat(chatId) {
     if (stompClient !== null) {
-        stompClient.subscribe('/topic/messages/' + Number(chatId), function (message) {
-            console.log("Received message " + message);
-            showMessage(JSON.parse(message.body));
+        stompClient.subscribe('/topic/messages/' + Number(chatId), function (response) {
+            console.log("Received response " + response);
+            showMessage(JSON.parse(response.body));
         });
     }
 }
@@ -45,9 +43,8 @@ function sendMessage() {
             'sender': $('#sender').val(),
             'text': message.val()
         }));
-        setTimeout(parseCommand, 200, message.val());
         message.val('');
-        let objDiv = $("#chat-" + currentChatId);
+        let objDiv = $("#scroll-chat-" + currentChatId);
         objDiv.scrollTop = objDiv.scrollHeight;
     }
 }
@@ -70,24 +67,34 @@ function getChatElementByChatId(chats, chatId) {
     return null;
 }
 
-function showMessage(message) {
-    let dateTime = new Date(Date.parse(message.dateTime));
-    dateTime.setHours(dateTime.getHours() + 3);
-    let dateTimeString = dateTime.toISOString();
-    dateTimeString = dateTimeString.replace('T', ' ');
-    dateTimeString = dateTimeString.substring(dateTimeString.length - 5, 0);
-    let chatId = message.chat.id;
+function showMessage(response) {
+    let type = response.type;
+
     let chats = document.getElementsByClassName("tab-pane fade");
-    if (contains(chats, chatId)) {
-        let chatDest = getChatElementByChatId(chats, chatId);
-        $(chatDest).children('table').children('tbody').append('<tr>' +
-            '<th scope="row" style="width: 80px">' + message.sender + '</th>' +
-            '<td colspan="2">' + message.text + '</td>' +
-            '<td style="text-align: right; width: 180px">' + dateTimeString + '</td>' +
-            '</tr>'
-        );
-        let objDiv = $('#chat-' + chatId)[0];
-        objDiv.scrollTop = objDiv.scrollHeight;
+    if (type === 'MESSAGE') {
+        let dateTime = new Date(Date.parse(response.message.dateTime));
+        dateTime.setHours(dateTime.getHours() + 3);
+        let dateTimeString = dateTime.toISOString();
+        dateTimeString = dateTimeString.replace('T', ' ');
+        dateTimeString = dateTimeString.substring(dateTimeString.length - 5, 0);
+        let chatId = response.message.chatId;
+        if (contains(chats, chatId)) {
+            let chatDest = getChatElementByChatId(chats, chatId);
+            $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
+                '<th scope="row" style="width: 80px">' + response.message.sender + '</th>' +
+                '<td colspan="2">' + response.message.text + '</td>' +
+                '<td style="text-align: right; width: 180px">' + dateTimeString + '</td>' +
+                '</tr>'
+            );
+            let objDiv = $('#scroll-chat-' + chatId)[0];
+            objDiv.scrollTop = objDiv.scrollHeight;
+        }
+    } else if (type === 'ERROR') {
+        console.log(response.utilMessage);
+        //todo handle error response
+    } else if (type === 'COMMAND') {
+        console.log(response.type);
+        //todo handle command response
     }
 }
 

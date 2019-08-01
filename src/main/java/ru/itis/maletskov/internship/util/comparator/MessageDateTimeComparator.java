@@ -1,12 +1,12 @@
 package ru.itis.maletskov.internship.util.comparator;
 
-import ru.itis.maletskov.internship.model.Message;
+import ru.itis.maletskov.internship.dto.MessageDto;
 
 import java.util.Comparator;
 
-public class MessageDateTimeComparator implements Comparator<Message> {
+public class MessageDateTimeComparator implements Comparator<MessageDto> {
     @Override
-    public int compare(Message message1, Message message2) {
+    public int compare(MessageDto message1, MessageDto message2) {
         return message1.getDateTime().compareTo(message2.getDateTime());
     }
 }
