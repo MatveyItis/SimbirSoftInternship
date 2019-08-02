@@ -6,6 +6,7 @@ import lombok.ToString;
 import org.springframework.format.annotation.DateTimeFormat;
 import ru.itis.maletskov.internship.form.MessageForm;
 import ru.itis.maletskov.internship.model.Message;
+import ru.itis.maletskov.internship.model.MessageType;
 
 import java.time.LocalDateTime;
 
@@ -16,6 +17,7 @@ public class MessageDto {
     private String text;
     private String sender;
     private Long chatId;
+    private MessageType type;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime dateTime;
 
@@ -24,6 +26,7 @@ public class MessageDto {
         dto.setText(message.getText());
         dto.setSender(message.getSender());
         dto.setChatId(message.getChat().getId());
+        dto.setType(message.getType());
         dto.setDateTime(message.getDateTime());
         return dto;
     }
@@ -33,6 +36,7 @@ public class MessageDto {
         dto.setText(form.getText());
         dto.setSender(form.getSender());
         dto.setChatId(form.getChatId());
+        dto.setType(form.getType());
         dto.setDateTime(form.getDateTime());
         return dto;
     }

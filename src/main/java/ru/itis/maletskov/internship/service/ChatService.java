@@ -9,9 +9,9 @@ public interface ChatService {
 
     ChatDto addUserToChat(String chatName, String username, String otherUsername);
 
-    void nominateToModerator(Long chatId, String userLogin);
+    void nominateToModerator(Long chatId, String userLogin, String username);
 
-    void downgradeToUser(Long chatId, String userLogin);
+    void downgradeToUser(Long chatId, String userLogin, String username);
 
     void deleteChat(String chatName, String username);
 

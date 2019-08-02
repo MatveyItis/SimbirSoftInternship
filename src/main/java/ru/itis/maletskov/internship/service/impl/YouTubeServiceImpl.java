@@ -26,8 +26,9 @@ public class YouTubeServiceImpl implements YouTubeService {
     private String YOUTUBE_API_URL;
 
     @Override
-    public String searchVideo(String channel, String videoName) throws IOException, JSONException {
+    public String searchVideo(String channel, String videoName, Boolean viewCount, Boolean likeCount) throws IOException, JSONException {
         videoName = videoName.replace(' ', '+');
+        channel = channel.replace(' ', '+');
         StringBuilder sb = new StringBuilder(YOUTUBE_API_URL).append("/search");
         sb.append("?").append("key=").append(API_KEY).append("&");
         sb.append("q=").append(videoName).append("&");

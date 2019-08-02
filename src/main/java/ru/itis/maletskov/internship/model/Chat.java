@@ -28,7 +28,7 @@ public class Chat {
     @Column(name = "chat_type")
     private ChatType type;
 
-    @ManyToMany(cascade = CascadeType.ALL, mappedBy = "chat")
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "chat")
     @JsonIgnore
     private Collection<Message> messages = new ArrayList<>();
 

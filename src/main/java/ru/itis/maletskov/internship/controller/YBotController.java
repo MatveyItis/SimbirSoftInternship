@@ -18,7 +18,7 @@ public class YBotController {
     @PostMapping("/ybot_command")
     public String searchVideo(@RequestParam("search_request") String name,
                               Model model) throws IOException, JSONException {
-        model.addAttribute("url", youTubeService.searchVideo(name.split(" ")[0], name.split(" ")[1]));
+        model.addAttribute("url", youTubeService.searchVideo(name.split(" ")[0], name.split(" ")[1], false, false));
         return "ybot";
     }
 }

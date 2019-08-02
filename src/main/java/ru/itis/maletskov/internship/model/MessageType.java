@@ -1,5 +1,5 @@
 package ru.itis.maletskov.internship.model;
 
 public enum  MessageType {
-    JOIN, LEFT, COMMAND, MESSAGE, ERROR, COMMAND_ERROR
+    JOIN, LEFT, COMMAND, MESSAGE, ERROR, COMMAND_ERROR, YBOT_COMMAND
 }

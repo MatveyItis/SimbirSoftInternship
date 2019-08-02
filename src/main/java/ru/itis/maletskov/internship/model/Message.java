@@ -1,5 +1,6 @@
 package ru.itis.maletskov.internship.model;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 @Setter
 @Entity
 @Table(name = "message")
+@EqualsAndHashCode(exclude = "chat")
 @ToString(exclude = "chat")
 public class Message {
     @Id
@@ -28,6 +30,7 @@ public class Message {
     private String sender;
 
     @OneToOne
+    @JoinColumn(name = "chat_id", referencedColumnName = "id")
     private Chat chat;
 
     @Column(name = "date_time")

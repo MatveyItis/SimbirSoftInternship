@@ -66,13 +66,14 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public void nominateToModerator(Long chatId, String userLogin) {
+    public void nominateToModerator(Long chatId, String userLogin, String username) {
         Optional<Chat> chatCandidate = chatRepository.findById(chatId);
         if (!chatCandidate.isPresent()) {
             throw new EntityNotFoundException(String.format(ExceptionMessages.CHAT_NOT_FOUND_MESSAGE, chatId));
         }
         Chat chat = chatCandidate.get();
         Optional<User> userCandidate = userRepository.findByLogin(userLogin);
+        //todo check rights
         chat.getModerators().add(userCandidate.orElseThrow(() ->
                         new UsernameNotFoundException(
                                 String.format("Cannot assign user to role MODERATOR. User with login: %s is not found", userLogin)
@@ -83,11 +84,12 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public void downgradeToUser(Long chatId, String userLogin) {
+    public void downgradeToUser(Long chatId, String userLogin, String username) {
         Optional<Chat> chatCandidate = chatRepository.findById(chatId);
         if (!chatCandidate.isPresent()) {
             throw new EntityNotFoundException(String.format(ExceptionMessages.CHAT_NOT_FOUND_MESSAGE, chatId));
         }
+        //todo check rights
         Chat chat = chatCandidate.get();
         Optional<User> userCandidate = userRepository.findByLogin(userLogin);
         userCandidate.ifPresent(user -> chat.getModerators().remove(user));
@@ -100,7 +102,7 @@ public class ChatServiceImpl implements ChatService {
         Optional<User> userCandidate = userRepository.findByLogin(username);
         if (chatCandidate.isPresent() && userCandidate.isPresent() && ((chatCandidate.get().getAdmin() != null &&
                 chatCandidate.get().getAdmin().equals(userCandidate.get())) || chatCandidate.get().getOwner().equals(userCandidate.get()))) {
-            chatRepository.deleteChatById(chatCandidate.get().getId());
+            chatRepository.deleteById(chatCandidate.get().getId());
         }
     }
 

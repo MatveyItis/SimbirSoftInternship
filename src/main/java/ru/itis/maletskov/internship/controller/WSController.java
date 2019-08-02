@@ -30,11 +30,12 @@ public class WSController {
     @MessageMapping("/chat/{chatId}")
     @SendTo("/topic/messages/{chatId}")
     public ServerResponseDto sendMessageToChat(@DestinationVariable Long chatId,
-                                               @Payload MessageForm messageForm) {
-        messageForm.setDateTime(LocalDateTime.now());
-        messageForm.setChatId(chatId);
-        messageService.saveMessage(messageForm);
-        return parserService.parseMessage(messageForm);
+                                               @Payload MessageForm form) {
+        form.setDateTime(LocalDateTime.now());
+        form.setChatId(chatId);
+        ServerResponseDto responseDto = parserService.parseMessage(form);
+        messageService.saveMessage(MessageForm.fromDtoToForm(responseDto.getMessage()));
+        return responseDto;
     }
 
     @GetMapping("/chats")
