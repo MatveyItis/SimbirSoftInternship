@@ -9,6 +9,7 @@ import ru.itis.maletskov.internship.model.Message;
 import ru.itis.maletskov.internship.repository.ChatRepository;
 import ru.itis.maletskov.internship.repository.MessageRepository;
 import ru.itis.maletskov.internship.service.MessageService;
+import ru.itis.maletskov.internship.util.exception.ChatException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +23,9 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public MessageDto saveMessage(MessageForm messageForm) {
         Message message = new Message();
-        message.setChat(chatRepository.findById(messageForm.getChatId()).orElse(null));
+        message.setChat(chatRepository.findById(messageForm.getChatId()).orElseThrow(() ->
+                new ChatException("Chat with id := " + messageForm.getChatId() + " is not found"))
+        );
         message.setSender(messageForm.getSender());
         message.setDateTime(messageForm.getDateTime());
         message.setText(messageForm.getText());

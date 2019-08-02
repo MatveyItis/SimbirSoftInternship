@@ -8,10 +8,7 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Getter
 @Setter
@@ -31,9 +28,9 @@ public class Chat {
     @Column(name = "chat_type")
     private ChatType type;
 
-    @ManyToMany(mappedBy = "chat")
+    @ManyToMany(cascade = CascadeType.ALL, mappedBy = "chat")
     @JsonIgnore
-    private List<Message> messages = new ArrayList<>();
+    private Collection<Message> messages = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<User> members = new HashSet<>();

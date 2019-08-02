@@ -26,4 +26,10 @@ public interface ChatService {
     ChatDto findChatByName(String chatName);
 
     Boolean existsChatById(Long id);
+
+    ChatDto exitFromChat(String chatName, String username);
+
+    ChatDto exitFromChat(String chatName, String loginUser, Integer minute, String username);
+
+    ChatDto banUser(String userLogin, Integer minuteCount, String sender);
 }

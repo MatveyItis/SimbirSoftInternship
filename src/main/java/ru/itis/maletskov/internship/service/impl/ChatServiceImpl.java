@@ -12,9 +12,9 @@ import ru.itis.maletskov.internship.repository.UserRepository;
 import ru.itis.maletskov.internship.service.ChatService;
 import ru.itis.maletskov.internship.util.comparator.ChatIdComparator;
 import ru.itis.maletskov.internship.util.exception.ChatException;
-import ru.itis.maletskov.internship.util.exception.EntityNotFoundException;
 import ru.itis.maletskov.internship.util.exception.ExceptionMessages;
 
+import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -163,5 +163,20 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public Boolean existsChatById(Long id) {
         return chatRepository.existsChatById(id);
+    }
+
+    @Override
+    public ChatDto exitFromChat(String chatName, String username) {
+        return null;
+    }
+
+    @Override
+    public ChatDto exitFromChat(String chatName, String loginUser, Integer minute, String username) {
+        return null;
+    }
+
+    @Override
+    public ChatDto banUser(String userLogin, Integer minuteCount, String sender) {
+        return null;
     }
 }

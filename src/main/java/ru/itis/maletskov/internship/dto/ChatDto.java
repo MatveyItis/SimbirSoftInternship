@@ -9,7 +9,10 @@ import ru.itis.maletskov.internship.model.ChatType;
 import ru.itis.maletskov.internship.util.comparator.MessageDateTimeComparator;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -32,10 +35,8 @@ public class ChatDto {
         dto.setName(chat.getName());
         dto.setType(chat.getType());
         List<MessageDto> messages = new ArrayList<>();
-        if (chat.getMessages() != null && !chat.getMessages().isEmpty()) {
-            chat.getMessages().forEach(m -> messages.add(MessageDto.fromMessageToDto(m)));
-            messages.sort(new MessageDateTimeComparator());
-        }
+        chat.getMessages().forEach(m -> messages.add(MessageDto.fromMessageToDto(m)));
+        messages.sort(new MessageDateTimeComparator());
         dto.setMessages(messages);
         Set<UserDto> users = new HashSet<>();
         chat.getMembers().forEach(c -> users.add(UserDto.fromUserToDto(c)));

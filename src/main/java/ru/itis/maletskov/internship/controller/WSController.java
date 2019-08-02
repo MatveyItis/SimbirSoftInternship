@@ -1,14 +1,16 @@
 package ru.itis.maletskov.internship.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.messaging.handler.annotation.*;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import ru.itis.maletskov.internship.dto.ServerResponseDto;
 import ru.itis.maletskov.internship.form.MessageForm;
-import ru.itis.maletskov.internship.model.MessageType;
 import ru.itis.maletskov.internship.model.UserAuth;
 import ru.itis.maletskov.internship.service.ChatService;
 import ru.itis.maletskov.internship.service.MessageParserService;
@@ -19,7 +21,7 @@ import java.time.format.DateTimeFormatter;
 
 @Controller
 @RequiredArgsConstructor
-public class WebSocketController {
+public class WSController {
     private final MessageService messageService;
     private final ChatService chatService;
     private final MessageParserService parserService;
@@ -31,19 +33,8 @@ public class WebSocketController {
                                                @Payload MessageForm messageForm) {
         messageForm.setDateTime(LocalDateTime.now());
         messageForm.setChatId(chatId);
-        ServerResponseDto response = parserService.parseMessage(messageForm);
         messageService.saveMessage(messageForm);
-        return response;
-    }
-
-    @MessageExceptionHandler
-    @SendTo("/topic/messages/{chatId}")
-    public ServerResponseDto handle(@DestinationVariable Long chatId,
-                                    RuntimeException e) {
-        ServerResponseDto response = new ServerResponseDto();
-        response.setType(MessageType.ERROR);
-        response.setUtilMessage(e.getMessage());
-        return response;
+        return parserService.parseMessage(messageForm);
     }
 
     @GetMapping("/chats")
