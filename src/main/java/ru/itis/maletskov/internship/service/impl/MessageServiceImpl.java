@@ -21,14 +21,11 @@ public class MessageServiceImpl implements MessageService {
     private final ChatRepository chatRepository;
 
     @Override
-    public MessageDto saveMessage(MessageForm messageForm) {
-        Message message = new Message();
-        message.setChat(chatRepository.findById(messageForm.getChatId()).orElseThrow(() ->
-                new ChatException("Chat with id := " + messageForm.getChatId() + " is not found"))
+    public MessageDto saveMessage(MessageForm form) throws Exception {
+        Message message = MessageForm.fromFormToMessage(form);
+        message.setChat(chatRepository.findById(form.getChatId()).orElseThrow(() ->
+                new ChatException("Chat with id := " + form.getChatId() + " is not found"))
         );
-        message.setSender(messageForm.getSender());
-        message.setDateTime(messageForm.getDateTime());
-        message.setText(messageForm.getText());
         return MessageDto.fromMessageToDto(messageRepository.save(message));
     }
 

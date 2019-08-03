@@ -1,6 +1,6 @@
 package ru.itis.maletskov.internship.util.exception;
 
-public class CommandParsingException extends RuntimeException {
+public class CommandParsingException extends Exception {
     public CommandParsingException(String message) {
         super(message);
     }

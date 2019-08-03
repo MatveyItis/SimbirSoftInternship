@@ -24,7 +24,7 @@ function subscribeToChat(chatId) {
     if (stompClient !== null) {
         stompClient.subscribe('/topic/messages/' + Number(chatId), function (response) {
             console.log("Received response " + response);
-            showMessage(JSON.parse(response.body));
+            handleResponse(JSON.parse(response.body));
         });
     }
 }
@@ -67,35 +67,58 @@ function getChatElementByChatId(chats, chatId) {
     return null;
 }
 
-function showMessage(response) {
-    let type = response.type;
+function handleResponse(response) {
+    let type = response.message.type;
 
     let chats = document.getElementsByClassName("tab-pane fade");
+    let dateTime = new Date(Date.parse(response.message.dateTime));
+    dateTime.setHours(dateTime.getHours() + 3);
+    let dateTimeString = dateTime.toISOString();
+    dateTimeString = dateTimeString.replace('T', ' ');
+    dateTimeString = dateTimeString.substring(dateTimeString.length - 5, 0);
+    let chatId = response.message.chatId;
+    let chatDest = getChatElementByChatId(chats, chatId);
+    $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
+        '<th scope="row" style="width: 80px">' + response.message.sender + '</th>' +
+        '<td colspan="2">' + response.message.text + '</td>' +
+        '<td style="text-align: right; width: 180px">' + dateTimeString + '</td>' +
+        '</tr>'
+    );
+    let objDiv = $('#scroll-chat-' + chatId)[0];
+    objDiv.scrollTop = objDiv.scrollHeight;
+
     if (type === 'MESSAGE') {
-        let dateTime = new Date(Date.parse(response.message.dateTime));
-        dateTime.setHours(dateTime.getHours() + 3);
-        let dateTimeString = dateTime.toISOString();
-        dateTimeString = dateTimeString.replace('T', ' ');
-        dateTimeString = dateTimeString.substring(dateTimeString.length - 5, 0);
-        let chatId = response.message.chatId;
-        if (contains(chats, chatId)) {
-            let chatDest = getChatElementByChatId(chats, chatId);
-            $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
-                '<th scope="row" style="width: 80px">' + response.message.sender + '</th>' +
-                '<td colspan="2">' + response.message.text + '</td>' +
-                '<td style="text-align: right; width: 180px">' + dateTimeString + '</td>' +
-                '</tr>'
-            );
-            let objDiv = $('#scroll-chat-' + chatId)[0];
-            objDiv.scrollTop = objDiv.scrollHeight;
-        }
-    } else if (type === 'ERROR') {
-        console.log(response.utilMessage);
-        //todo handle error response
+        return;
     } else if (type === 'COMMAND') {
-        console.log(response.type);
-        //todo handle command response
+        $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
+            '<th scope="row" style="width: 80px; background-color: forestgreen">Success: </th>' +
+            '<td colspan="3">' + response.utilMessage + '</td>' +
+            '</tr>'
+        );
+    } else if (type === 'YBOT_COMMAND') {
+        $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
+            '<th scope="row" style="width: 80px; background-color: #ff5a58">Success to find video!</th>' +
+            '<td colspan="3">' + response.utilMessage + '</td>' +
+            '</tr>'
+        );
+    } else if (type === 'ERROR') {
+        $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
+            '<th scope="row" style="width: 80px;"><strong style="color: red">Server: </strong></th>' +
+            '<td colspan="3">' + response.utilMessage + '</td>' +
+            '</tr>'
+        );
+    } else if (type === 'COMMAND_ERROR') {
+        $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
+            '<th scope="row" style="width: 80px; background-color: red">Ops. We have a problem with parsing command: </th>' +
+            '<td colspan="3">' + response.utilMessage + '</td>' +
+            '</tr>'
+        );
+    } else if (type === 'JOIN') {
+
+    } else if (type === 'LEFT') {
+
     }
+    objDiv.scrollTop = objDiv.scrollHeight;
 }
 
 $(function () {

@@ -30,7 +30,7 @@ public class WSController {
     @MessageMapping("/chat/{chatId}")
     @SendTo("/topic/messages/{chatId}")
     public ServerResponseDto sendMessageToChat(@DestinationVariable Long chatId,
-                                               @Payload MessageForm form) {
+                                               @Payload MessageForm form) throws Exception {
         form.setDateTime(LocalDateTime.now());
         form.setChatId(chatId);
         ServerResponseDto responseDto = parserService.parseMessage(form);

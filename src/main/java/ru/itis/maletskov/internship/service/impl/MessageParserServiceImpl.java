@@ -23,7 +23,7 @@ public class MessageParserServiceImpl implements MessageParserService {
     private final YouTubeService youTubeService;
 
     @Override
-    public ServerResponseDto parseMessage(MessageForm form) {
+    public ServerResponseDto parseMessage(MessageForm form) throws Exception {
         ServerResponseDto response = new ServerResponseDto();
         response.setMessage(MessageDto.fromFormToDto(form));
         String command = form.getText();
@@ -56,14 +56,14 @@ public class MessageParserServiceImpl implements MessageParserService {
     }
 
 
-    private void createRoom(String command, ServerResponseDto response, MessageForm form) {
+    private void createRoom(String command, ServerResponseDto response, MessageForm form) throws Exception {
         boolean isPrivate = command.contains(" -c ");
         String chatName = command.substring(isPrivate ? 17 : 14);
         response.getMessage().setType(MessageType.COMMAND);
         chatService.createChat(chatName, form.getSender(), isPrivate);
     }
 
-    private void connectRoom(String command, ServerResponseDto response, MessageForm form) {
+    private void connectRoom(String command, ServerResponseDto response, MessageForm form) throws Exception {
         boolean containsLogin = command.contains(" -l ");
         String chatName = command.substring(15, containsLogin ? command.indexOf(" -l ") : command.length()).trim();
         String userLogin = null;
@@ -72,9 +72,10 @@ public class MessageParserServiceImpl implements MessageParserService {
         }
         response.getMessage().setType(MessageType.COMMAND);
         chatService.addUserToChat(chatName, form.getSender(), userLogin);
+        response.setUtilMessage("Added '" + userLogin + "' to chat.");
     }
 
-    private void renameRoom(String command, ServerResponseDto response, MessageForm form) {
+    private void renameRoom(String command, ServerResponseDto response, MessageForm form) throws Exception {
         String newChatName = command.substring(14);
         response.getMessage().setType(MessageType.COMMAND);
         chatService.renameChat(form.getChatId(), newChatName, form.getSender());
@@ -104,7 +105,7 @@ public class MessageParserServiceImpl implements MessageParserService {
         response.getMessage().setType(MessageType.COMMAND);
     }
 
-    private void banUser(String command, ServerResponseDto response, MessageForm form) {
+    private void banUser(String command, ServerResponseDto response, MessageForm form) throws Exception {
         boolean isContainsUserLogin = command.contains(" -l ");
         boolean isContainsMinuteCount = command.contains(" -m ");
         if (isContainsMinuteCount && isContainsUserLogin) {
@@ -123,7 +124,7 @@ public class MessageParserServiceImpl implements MessageParserService {
 
     }
 
-    private void actionWithModerator(String command, ServerResponseDto response, MessageForm form) {
+    private void actionWithModerator(String command, ServerResponseDto response, MessageForm form) throws Exception {
         boolean nominated = command.contains(" -n ");
         boolean downgraded = command.contains(" -d ");
         if ((nominated && downgraded) || (!nominated && !downgraded)) {
@@ -143,7 +144,7 @@ public class MessageParserServiceImpl implements MessageParserService {
         }
     }
 
-    private void findVideo(String command, ServerResponseDto response) {
+    private void findVideo(String command, ServerResponseDto response) throws Exception {
         boolean isContainsChannelName = command.contains(" -k ");
         boolean isContainsVideoName = command.contains(" -w ");
         boolean isContainsViewMarker = command.contains(" -v ");
@@ -170,7 +171,7 @@ public class MessageParserServiceImpl implements MessageParserService {
     }
 
     private void handleMessage(ServerResponseDto response, MessageForm form) {
-        response.getMessage().setType(MessageType.MESSAGE);
+        form.setType(MessageType.MESSAGE);
         response.setMessage(MessageDto.fromFormToDto(form));
     }
 }

@@ -25,7 +25,7 @@ public class MessageController {
     @PostMapping(value = "/create_room", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ChatDto> createRoom(@RequestParam("chatName") String name,
                                               @RequestParam("chatType") Boolean chatType,
-                                              @AuthenticationPrincipal UserAuth userAuth) {
+                                              @AuthenticationPrincipal UserAuth userAuth) throws Exception {
         ChatDto chat = chatService.createChat(name, userAuth.getLogin(), chatType);
         return ResponseEntity.ok().body(chat);
     }
@@ -45,7 +45,7 @@ public class MessageController {
     @PostMapping(value = "/connect_room", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ChatDto> connectRoom(@RequestParam("chatName") String chatName,
                                                @RequestParam(value = "userLogin", required = false) String userLogin,
-                                               @AuthenticationPrincipal UserAuth userAuth) {
+                                               @AuthenticationPrincipal UserAuth userAuth) throws Exception {
         ChatDto chat = chatService.findChatByName(chatName);
         if (chat != null) {
             if (chat.getType().name().equals(ChatType.PRIVATE.name())) {
@@ -60,7 +60,7 @@ public class MessageController {
     @PostMapping(value = "/rename_room", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ChatDto> renameRoom(@RequestParam("newChatName") String newChatName,
                                               @RequestParam("chatId") Long chatId,
-                                              @AuthenticationPrincipal UserAuth userAuth) {
+                                              @AuthenticationPrincipal UserAuth userAuth) throws Exception {
         if (chatService.existsChatById(chatId)) {
             return ResponseEntity.ok(chatService.renameChat(chatId, newChatName, userAuth.getUsername()));
         } else {

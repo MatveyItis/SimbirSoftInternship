@@ -109,8 +109,11 @@
                                     <tbody id="greetings">
                                     <#if chat.messages??>
                                         <#list chat.messages as message>
+                                        <#--todo handle types of response-->
                                             <tr>
-                                                <th scope="row" style="width: 80px">${message.sender}</th>
+                                                <th scope="row"
+                                                    style="width: 80px"><#if message.sender??>${message.sender}<#else>
+                                                        <strong style="color: red">Server: </strong></#if></th>
                                                 <td colspan="2">${message.text}</td>
                                                 <td style="text-align: right; width: 180px">${message.dateTime.format(formatter)}</td>
                                             </tr>

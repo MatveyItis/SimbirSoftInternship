@@ -13,38 +13,41 @@ import ru.itis.maletskov.internship.model.MessageType;
 import ru.itis.maletskov.internship.service.MessageService;
 import ru.itis.maletskov.internship.util.exception.ChatException;
 import ru.itis.maletskov.internship.util.exception.CommandParsingException;
+import ru.itis.maletskov.internship.util.exception.InvalidAccessException;
 import ru.itis.maletskov.internship.util.exception.YBotException;
 
 import javax.persistence.EntityNotFoundException;
+import java.time.LocalDateTime;
 
 @ControllerAdvice
 @RequiredArgsConstructor
 public class WSExceptionHandlerController {
     private final MessageService messageService;
 
-    @MessageExceptionHandler({EntityNotFoundException.class, ChatException.class})
+    @MessageExceptionHandler({EntityNotFoundException.class, ChatException.class,
+            CommandParsingException.class, YBotException.class, InvalidAccessException.class})
     @SendTo("/topic/messages/{chatId}")
-    public ServerResponseDto handleError(@DestinationVariable Long chatId,
-                                         @Payload MessageForm form,
-                                         RuntimeException e) {
+    public ServerResponseDto handleErrors(@DestinationVariable Long chatId,
+                                          @Payload MessageForm form,
+                                          Exception e) throws Exception {
         ServerResponseDto response = new ServerResponseDto();
+        form.setDateTime(LocalDateTime.now());
+        form.setChatId(chatId);
+        messageService.saveMessage(form);
         response.setMessage(MessageDto.fromFormToDto(form));
-        response.getMessage().setType(MessageType.ERROR);
+        if (e instanceof EntityNotFoundException || e instanceof ChatException || e instanceof InvalidAccessException) {
+            response.getMessage().setType(MessageType.ERROR);
+        }
+        if (e instanceof CommandParsingException || e instanceof YBotException) {
+            response.getMessage().setType(MessageType.COMMAND_ERROR);
+        }
         response.setUtilMessage(e.getMessage());
-        messageService.saveMessage(MessageForm.fromDtoToForm(response.getMessage()));
-        return response;
-    }
-
-    @MessageExceptionHandler({CommandParsingException.class, YBotException.class})
-    @SendTo("/topic/messages/{chatId}")
-    public ServerResponseDto handleCommandError(@DestinationVariable Long chatId,
-                                                @Payload MessageForm form,
-                                                RuntimeException e) {
-        ServerResponseDto response = new ServerResponseDto();
-        response.setMessage(MessageDto.fromFormToDto(form));
-        response.getMessage().setType(MessageType.COMMAND_ERROR);
-        response.setUtilMessage(e.getMessage());
-        messageService.saveMessage(MessageForm.fromDtoToForm(response.getMessage()));
+        MessageForm serverMessage = new MessageForm();
+        serverMessage.setChatId(chatId);
+        serverMessage.setType(response.getMessage().getType());
+        serverMessage.setDateTime(LocalDateTime.now());
+        serverMessage.setText(e.getMessage());
+        messageService.saveMessage(serverMessage);
         return response;
     }
 }

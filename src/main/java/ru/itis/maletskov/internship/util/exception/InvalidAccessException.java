@@ -1,6 +1,6 @@
 package ru.itis.maletskov.internship.util.exception;
 
-public class InvalidAccessException extends RuntimeException {
+public class InvalidAccessException extends Exception {
     public InvalidAccessException(String message) {
         super(message);
     }

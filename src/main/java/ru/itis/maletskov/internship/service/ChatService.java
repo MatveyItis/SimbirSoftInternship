@@ -5,9 +5,9 @@ import ru.itis.maletskov.internship.dto.ChatDto;
 import java.util.List;
 
 public interface ChatService {
-    ChatDto createChat(String name, String ownerLogin, Boolean chatType);
+    ChatDto createChat(String name, String ownerLogin, Boolean chatType) throws Exception;
 
-    ChatDto addUserToChat(String chatName, String username, String otherUsername);
+    ChatDto addUserToChat(String chatName, String username, String otherUsername) throws Exception;
 
     void nominateToModerator(Long chatId, String userLogin, String username);
 
@@ -15,7 +15,7 @@ public interface ChatService {
 
     void deleteChat(String chatName, String username);
 
-    ChatDto renameChat(Long chatId, String newChatName, String username);
+    ChatDto renameChat(Long chatId, String newChatName, String username) throws Exception;
 
     List<ChatDto> findAllChats();
 

@@ -13,6 +13,7 @@ import ru.itis.maletskov.internship.service.ChatService;
 import ru.itis.maletskov.internship.util.comparator.ChatIdComparator;
 import ru.itis.maletskov.internship.util.exception.ChatException;
 import ru.itis.maletskov.internship.util.exception.ExceptionMessages;
+import ru.itis.maletskov.internship.util.exception.InvalidAccessException;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
@@ -28,7 +29,7 @@ public class ChatServiceImpl implements ChatService {
     private final UserRepository userRepository;
 
     @Override
-    public ChatDto createChat(String name, String ownerLogin, Boolean chatType) {
+    public ChatDto createChat(String name, String ownerLogin, Boolean chatType) throws ChatException {
         Chat chat = new Chat();
         chat.setName(name);
         chat.setCreatedChatDate(LocalDateTime.now());
@@ -46,7 +47,7 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public ChatDto addUserToChat(String chatName, String username, String otherUsername) {
+    public ChatDto addUserToChat(String chatName, String username, String otherUsername) throws Exception {
         Optional<Chat> chatCandidate = chatRepository.findChatByName(chatName);
         if (!chatCandidate.isPresent()) {
             throw new EntityNotFoundException(String.format(ExceptionMessages.CHAT_NOT_FOUND_MESSAGE, chatName));
@@ -55,12 +56,20 @@ public class ChatServiceImpl implements ChatService {
         Optional<User> userCandidate = userRepository.findByLogin(username);
         Optional<User> otherUserCandidate = userRepository.findByLogin(otherUsername);
         boolean usersPresented = userCandidate.isPresent() && otherUserCandidate.isPresent();
-        if (usersPresented && (chat.getOwner().equals(userCandidate.get()) || chat.getAdmin().equals(userCandidate.get()))) {
+        if (!otherUserCandidate.isPresent()) {
+            throw new EntityNotFoundException("Cannot add user to chat. User with login " + otherUsername + " is not found");
+        }
+        if (usersPresented && ((!chat.getOwner().equals(userCandidate.get())) && (chat.getAdmin() == null || !chat.getAdmin().equals(userCandidate.get())))
+                && chat.getType() == ChatType.PRIVATE) {
+            throw new InvalidAccessException("Cannot add user to private chat. Insufficient rights");
+        }
+        if (chat.getMembers().contains(otherUserCandidate.get())) {
+            throw new ChatException("Cannot add user to chat because user already in chat");
+        }
+        if (usersPresented && (chat.getOwner().equals(userCandidate.get()) || (chat.getAdmin() != null && chat.getAdmin().equals(userCandidate.get())))) {
             chat.getMembers().add(otherUserCandidate.get());
-        } else if (chat.getType() != ChatType.PRIVATE) {
-            userCandidate.ifPresent(user -> chat.getMembers().add(user));
         } else {
-            throw new ChatException("Cannot add user to chat");
+            userCandidate.ifPresent(user -> chat.getMembers().add(user));
         }
         return ChatDto.fromChatToDto(chatRepository.save(chat));
     }
@@ -107,7 +116,7 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public ChatDto renameChat(Long chatId, String newChatName, String username) {
+    public ChatDto renameChat(Long chatId, String newChatName, String username) throws ChatException {
         Optional<Chat> chatCandidate = chatRepository.findById(chatId);
         if (chatRepository.existsChatByName(newChatName)) {
             throw new ChatException(String.format(ExceptionMessages.CHAT_ALREADY_EXISTS_MESSAGE, newChatName));

@@ -6,7 +6,7 @@ import ru.itis.maletskov.internship.form.MessageForm;
 import java.util.List;
 
 public interface MessageService {
-    MessageDto saveMessage(MessageForm messageForm);
+    MessageDto saveMessage(MessageForm messageForm) throws Exception;
 
     void deleteMessageById(Long id);
 
