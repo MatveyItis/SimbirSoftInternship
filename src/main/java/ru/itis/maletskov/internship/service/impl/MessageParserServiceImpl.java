@@ -3,11 +3,10 @@ package ru.itis.maletskov.internship.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONException;
 import org.springframework.stereotype.Service;
-import ru.itis.maletskov.internship.dto.ChatDto;
-import ru.itis.maletskov.internship.dto.MessageDto;
-import ru.itis.maletskov.internship.dto.ServerResponseDto;
+import ru.itis.maletskov.internship.dto.*;
 import ru.itis.maletskov.internship.form.MessageForm;
-import ru.itis.maletskov.internship.model.MessageType;
+import ru.itis.maletskov.internship.model.type.CommandType;
+import ru.itis.maletskov.internship.model.type.MessageType;
 import ru.itis.maletskov.internship.service.ChatService;
 import ru.itis.maletskov.internship.service.MessageParserService;
 import ru.itis.maletskov.internship.service.YouTubeService;
@@ -59,8 +58,17 @@ public class MessageParserServiceImpl implements MessageParserService {
     private void createRoom(String command, ServerResponseDto response, MessageForm form) throws Exception {
         boolean isPrivate = command.contains(" -c ");
         String chatName = command.substring(isPrivate ? 17 : 14);
+        ChatDto chatDto = chatService.createChat(chatName, form.getSender(), isPrivate);
         response.getMessage().setType(MessageType.COMMAND);
-        chatService.createChat(chatName, form.getSender(), isPrivate);
+        response.setUtilMessage("Chat with name '" + chatDto.getName() + "' has been created");
+
+        ResponseDataDto responseData = new ResponseDataDto();
+        responseData.setCommandType(CommandType.CREATE_ROOM);
+        responseData.setCreatedChatName(chatDto.getName());
+        responseData.setChatId(chatDto.getId());
+        responseData.setUsername(chatDto.getOwner().getLogin());
+
+        response.setResponseData(responseData);
     }
 
     private void connectRoom(String command, ServerResponseDto response, MessageForm form) throws Exception {
@@ -71,38 +79,67 @@ public class MessageParserServiceImpl implements MessageParserService {
             userLogin = command.substring(command.indexOf(" -l ") + 4).trim();
         }
         response.getMessage().setType(MessageType.COMMAND);
-        chatService.addUserToChat(chatName, form.getSender(), userLogin);
-        response.setUtilMessage("Added '" + userLogin + "' to chat.");
+        ChatDto chatDto = chatService.addUserToChat(chatName, form.getSender(), userLogin);
+        response.setUtilMessage("Added '" + (userLogin != null ? userLogin : form.getSender()) + "' to chat.");
+
+        ResponseDataDto responseData = new ResponseDataDto();
+        responseData.setCommandType(CommandType.CONNECT_ROOM);
+        responseData.setConnectedChat(ConnectedChatDto.fromDtoToConnectedChatDto(chatDto));
+        responseData.setConnectedUserLogin(userLogin == null ? form.getSender() : userLogin);
+        response.setResponseData(responseData);
     }
 
     private void renameRoom(String command, ServerResponseDto response, MessageForm form) throws Exception {
         String newChatName = command.substring(14);
+        ChatDto chatDto = chatService.renameChat(form.getChatId(), newChatName, form.getSender());
         response.getMessage().setType(MessageType.COMMAND);
-        chatService.renameChat(form.getChatId(), newChatName, form.getSender());
+        response.setUtilMessage("Chat has been renamed. New name is '" + chatDto.getName() + "'");
+
+        ResponseDataDto responseData = new ResponseDataDto();
+        responseData.setCommandType(CommandType.RENAME_ROOM);
+        responseData.setChatId(chatDto.getId());
+        responseData.setRenamedChatName(chatDto.getName());
+        response.setResponseData(responseData);
     }
 
     private void removeRoom(String command, ServerResponseDto response, MessageForm form) {
         String chatName = command.substring(14);
-        response.getMessage().setType(MessageType.COMMAND);
         chatService.deleteChat(chatName, form.getSender());
+        response.getMessage().setType(MessageType.COMMAND);
+        response.setUtilMessage("Chat has been removed:(");
     }
 
-    private void disconnectRoom(String command, ServerResponseDto response, MessageForm form) {
+    private void disconnectRoom(String command, ServerResponseDto response, MessageForm form) throws Exception {
         ChatDto chatDto = chatService.findChatById(form.getChatId());
         boolean isContainsUser = command.contains(" -l ");
         boolean isContainsMinute = command.contains(" -m ");
         boolean isContainsChatName = command.trim().length() > 17 && !isContainsUser && !isContainsMinute;
+        ChatDto dto;
+        ResponseDataDto responseData = new ResponseDataDto();
         if (isContainsMinute && isContainsUser) {
             String userLogin = command.substring(command.indexOf(" -l ") + 4, command.indexOf(" -m "));
             Integer minuteCount = Integer.valueOf(command.substring(command.indexOf(" -m ") + 4));
-            chatService.exitFromChat(chatDto.getName(), userLogin, minuteCount, form.getSender());
+            dto = chatService.exitFromChat(chatDto.getName(), userLogin, minuteCount, form.getSender());
+            response.setUtilMessage("'" + userLogin + "' has disconnected from the chat");
+            responseData.setDisconnectedChatName(dto.getName());
+            responseData.setDisconnectedUserLogin(userLogin);
+            responseData.setDisconnectedMinuteCount(minuteCount);
         } else if (!isContainsChatName) {
-            chatService.exitFromChat(chatDto.getName(), form.getSender());
+            dto = chatService.exitFromChat(chatDto.getName(), form.getSender());
+            response.setUtilMessage("'" + form.getSender() + "' has left the chat");
+            responseData.setDisconnectedChatName(dto.getName());
+            responseData.setDisconnectedUserLogin(form.getSender());
         } else {
             String chatName = command.substring(18);
-            chatService.exitFromChat(chatName, form.getSender());
+            dto = chatService.exitFromChat(chatName, form.getSender());
+            response.setUtilMessage("'" + form.getSender() + "' has left from the chat '" + chatName + "'");
+            responseData.setDisconnectedChatName(chatName);
+            responseData.setDisconnectedUserLogin(form.getSender());
         }
         response.getMessage().setType(MessageType.COMMAND);
+        responseData.setChatId(dto.getId());
+
+        response.setResponseData(responseData);
     }
 
     private void banUser(String command, ServerResponseDto response, MessageForm form) throws Exception {
@@ -125,19 +162,19 @@ public class MessageParserServiceImpl implements MessageParserService {
     }
 
     private void actionWithModerator(String command, ServerResponseDto response, MessageForm form) throws Exception {
-        boolean nominated = command.contains(" -n ");
-        boolean downgraded = command.contains(" -d ");
+        boolean nominated = command.contains(" -n") || command.contains(" -n ");
+        boolean downgraded = command.contains(" -d") || command.contains(" -d ");
         if ((nominated && downgraded) || (!nominated && !downgraded)) {
             throw new CommandParsingException("Parse command error := '" + command + "'");
         }
         if (nominated) {
-            String userLogin = command.substring(17, command.indexOf(" -n "));
+            String userLogin = command.substring(17, command.indexOf(" -n"));
             chatService.nominateToModerator(form.getChatId(), userLogin, form.getSender());
             response.getMessage().setType(MessageType.COMMAND);
             response.setUtilMessage("User with name " + userLogin + " has been nominated to moderator");
         }
         if (downgraded) {
-            String userLogin = command.substring(17, command.indexOf(" -m "));
+            String userLogin = command.substring(17, command.indexOf(" -d"));
             chatService.downgradeToUser(form.getChatId(), userLogin, form.getSender());
             response.getMessage().setType(MessageType.COMMAND);
             response.setUtilMessage("User with name " + userLogin + " has been downgraded to user");
@@ -149,13 +186,14 @@ public class MessageParserServiceImpl implements MessageParserService {
         boolean isContainsVideoName = command.contains(" -w ");
         boolean isContainsViewMarker = command.contains(" -v ");
         boolean isContainsLikeMarker = command.contains(" -l ");
-        if (isContainsChannelName || isContainsVideoName) {
+        if (!isContainsChannelName || !isContainsVideoName) {
             throw new CommandParsingException("Missing required attributes ' -k ' {channel name} and ' -l ' {video name}");
         }
-        String videoName = command.substring(command.indexOf(" -k ") + 4, command.indexOf(" -l "));
-        String channelName = command.substring(command.indexOf(" -l ") + 4);
+        String channelName = command.substring(command.indexOf(" -k ") + 4, command.indexOf(" -w "));
+        String videoName = command.substring(command.indexOf(" -w ") + 4);
         try {
-            youTubeService.searchVideo(channelName, videoName, isContainsViewMarker, isContainsLikeMarker);
+            String utilMessage = youTubeService.searchVideo(channelName, videoName, isContainsViewMarker, isContainsLikeMarker);
+            response.setUtilMessage(utilMessage);
             response.getMessage().setType(MessageType.YBOT_COMMAND);
         } catch (IOException | JSONException e) {
             throw new YBotException(e.getMessage());

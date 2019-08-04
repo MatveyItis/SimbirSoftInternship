@@ -27,7 +27,7 @@
                         <div class="tab-pane fade <#if chat_index = 0>show active<#else></#if>" id="chat-${chat.id}"
                              role="tabpanel" aria-labelledby="chat-${chat.id}">
                             <div class="row justify-content-between">
-                                <h6 class="font-weight-light pl-4 mt-2">${chat.name}</h6>
+                                <h6 class="font-weight-light pl-4 mt-2" id="chatName">${chat.name}</h6>
                                 <div class="btn-group-sm">
                                     <button type="button" class="btn btn-sm btn-primary dropdown-toggle"
                                             data-toggle="dropdown"
@@ -109,7 +109,7 @@
                                     <tbody id="greetings">
                                     <#if chat.messages??>
                                         <#list chat.messages as message>
-                                        <#--todo handle types of response-->
+                                        <#--todo check types of response-->
                                             <tr>
                                                 <th scope="row"
                                                     style="width: 80px"><#if message.sender??>${message.sender}<#else>

@@ -6,7 +6,7 @@ import lombok.ToString;
 import org.springframework.format.annotation.DateTimeFormat;
 import ru.itis.maletskov.internship.dto.MessageDto;
 import ru.itis.maletskov.internship.model.Message;
-import ru.itis.maletskov.internship.model.MessageType;
+import ru.itis.maletskov.internship.model.type.MessageType;
 
 import java.time.LocalDateTime;
 

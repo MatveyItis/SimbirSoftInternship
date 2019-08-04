@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.itis.maletskov.internship.dto.ChatDto;
-import ru.itis.maletskov.internship.model.ChatType;
+import ru.itis.maletskov.internship.model.type.ChatType;
 import ru.itis.maletskov.internship.model.UserAuth;
 import ru.itis.maletskov.internship.service.ChatService;
 import ru.itis.maletskov.internship.service.MessageService;

@@ -4,6 +4,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import ru.itis.maletskov.internship.model.type.MessageType;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;

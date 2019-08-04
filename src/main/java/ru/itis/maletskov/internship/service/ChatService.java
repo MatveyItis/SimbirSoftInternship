@@ -9,15 +9,13 @@ public interface ChatService {
 
     ChatDto addUserToChat(String chatName, String username, String otherUsername) throws Exception;
 
-    void nominateToModerator(Long chatId, String userLogin, String username);
+    ChatDto nominateToModerator(Long chatId, String userLogin, String username) throws Exception;
 
-    void downgradeToUser(Long chatId, String userLogin, String username);
+    ChatDto downgradeToUser(Long chatId, String userLogin, String username) throws Exception;
 
     void deleteChat(String chatName, String username);
 
     ChatDto renameChat(Long chatId, String newChatName, String username) throws Exception;
-
-    List<ChatDto> findAllChats();
 
     List<ChatDto> findAvailableChatsForUser(String username);
 
@@ -27,9 +25,9 @@ public interface ChatService {
 
     Boolean existsChatById(Long id);
 
-    ChatDto exitFromChat(String chatName, String username);
+    ChatDto exitFromChat(String chatName, String username) throws Exception;
 
-    ChatDto exitFromChat(String chatName, String loginUser, Integer minute, String username);
+    ChatDto exitFromChat(String chatName, String loginUser, Integer minute, String username) throws Exception;
 
-    ChatDto banUser(String userLogin, Integer minuteCount, String sender);
+    ChatDto banUser(String userLogin, Integer minuteCount, String sender) throws Exception;
 }

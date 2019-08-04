@@ -1,13 +1,5 @@
 var stompClient = null;
 
-function setConnected(connected) {
-    if (connected) {
-        $("#conversation").show();
-    } else {
-        $("#conversation").hide();
-    }
-}
-
 function connect() {
     let socket = new SockJS('/chat');
     stompClient = Stomp.over(socket);
@@ -26,6 +18,14 @@ function subscribeToChat(chatId) {
             console.log("Received response " + response);
             handleResponse(JSON.parse(response.body));
         });
+    }
+}
+
+function unsubscribeFromChat(chatId) {
+    if (stompClient !== null) {
+        stompClient.unsubscribe('/topic/messages' + Number(chatId), function () {
+            console.log('Unsubscribed from chat')
+        })
     }
 }
 
@@ -57,6 +57,15 @@ function contains(arr, elem) {
     return (newArr + "").indexOf(elem) !== -1;
 }
 
+function getDateTime(time) {
+    let dateTime = new Date(Date.parse(time));
+    dateTime.setHours(dateTime.getHours() + 3);
+    let dateTimeString = dateTime.toISOString();
+    dateTimeString = dateTimeString.replace('T', ' ');
+    dateTimeString = dateTimeString.substring(dateTimeString.length - 5, 0);
+    return dateTimeString;
+}
+
 function getChatElementByChatId(chats, chatId) {
     for (let i = 0; i < chats.length; i++) {
         let currentChatId = Number(chats[i].id.substring(5, chats[i].id.length));
@@ -68,57 +77,82 @@ function getChatElementByChatId(chats, chatId) {
 }
 
 function handleResponse(response) {
-    let type = response.message.type;
-
     let chats = document.getElementsByClassName("tab-pane fade");
-    let dateTime = new Date(Date.parse(response.message.dateTime));
-    dateTime.setHours(dateTime.getHours() + 3);
-    let dateTimeString = dateTime.toISOString();
-    dateTimeString = dateTimeString.replace('T', ' ');
-    dateTimeString = dateTimeString.substring(dateTimeString.length - 5, 0);
+    let dateTime = getDateTime(response.message.dateTime);
     let chatId = response.message.chatId;
     let chatDest = getChatElementByChatId(chats, chatId);
     $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
         '<th scope="row" style="width: 80px">' + response.message.sender + '</th>' +
         '<td colspan="2">' + response.message.text + '</td>' +
-        '<td style="text-align: right; width: 180px">' + dateTimeString + '</td>' +
+        '<td style="text-align: right; width: 180px">' + dateTime + '</td>' +
         '</tr>'
     );
-    let objDiv = $('#scroll-chat-' + chatId)[0];
-    objDiv.scrollTop = objDiv.scrollHeight;
+    setTimeout(renderResponse, 300, response, chatDest);
 
+    let objDiv = $('#scroll-chat-' + getCurrentChatId())[0];
+    objDiv.scrollTop = objDiv.scrollHeight;
+}
+
+function renderResponse(response, chatDest) {
+    let type = response.message.type;
+    let dateTime = getDateTime(response.message.dateTime);
     if (type === 'MESSAGE') {
-        return;
+
     } else if (type === 'COMMAND') {
+        renderCommandAction(response);
         $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
-            '<th scope="row" style="width: 80px; background-color: forestgreen">Success: </th>' +
-            '<td colspan="3">' + response.utilMessage + '</td>' +
+            '<th scope="row" style="width: 80px; color: forestgreen">Server: </th>' +
+            '<td colspan="2">' + response.utilMessage + '</td>' +
+            '<td style="text-align: right; width: 180px">' + dateTime + '</td>' +
             '</tr>'
         );
     } else if (type === 'YBOT_COMMAND') {
         $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
-            '<th scope="row" style="width: 80px; background-color: #ff5a58">Success to find video!</th>' +
-            '<td colspan="3">' + response.utilMessage + '</td>' +
+            '<th scope="row" style="width: 80px; color: cornflowerblue">yBot: </th>' +
+            '<td colspan="2"><a href="' + response.utilMessage + '" target="_blank">' + response.utilMessage + '</a></td>' +
+            '<td style="text-align: right; width: 180px">' + dateTime + '</td>' +
             '</tr>'
         );
     } else if (type === 'ERROR') {
         $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
             '<th scope="row" style="width: 80px;"><strong style="color: red">Server: </strong></th>' +
-            '<td colspan="3">' + response.utilMessage + '</td>' +
+            '<td colspan="2">' + response.utilMessage + '</td>' +
+            '<td style="text-align: right; width: 180px">' + dateTime + '</td>' +
             '</tr>'
         );
-    } else if (type === 'COMMAND_ERROR') {
-        $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
-            '<th scope="row" style="width: 80px; background-color: red">Ops. We have a problem with parsing command: </th>' +
-            '<td colspan="3">' + response.utilMessage + '</td>' +
-            '</tr>'
-        );
-    } else if (type === 'JOIN') {
-
-    } else if (type === 'LEFT') {
-
     }
-    objDiv.scrollTop = objDiv.scrollHeight;
+}
+
+function renderCommandAction(response) {
+    let commandType = response.responseData.commandType;
+    switch (commandType) {
+        case 'CONNECT_ROOM':
+            renderConnectRoom(response);
+            break;
+        case 'DISCONNECT_ROOM':
+            renderDisconnectRoom(response);
+            break;
+        case 'CREATE_ROOM':
+            renderCreateRoom(response);
+            break;
+        case 'REMOVE_ROOM':
+            renderRemoveRoom(response);
+            break;
+        case 'RENAME_ROOM':
+            renderRenameRoom(response);
+            break;
+        case 'USER_RENAME':
+            renderUserRename(response);
+            break;
+        case 'USER_BAN':
+            renderUserBan(response);
+            break;
+        case 'USER_MODERATOR':
+            renderUserModerator(response);
+            break;
+        default:
+            console.log('Что-то пошло не так')
+    }
 }
 
 $(function () {

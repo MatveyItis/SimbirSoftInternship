@@ -5,7 +5,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.springframework.format.annotation.DateTimeFormat;
 import ru.itis.maletskov.internship.model.Chat;
-import ru.itis.maletskov.internship.model.ChatType;
+import ru.itis.maletskov.internship.model.type.ChatType;
 import ru.itis.maletskov.internship.util.comparator.MessageDateTimeComparator;
 
 import java.time.LocalDateTime;

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import ru.itis.maletskov.internship.dto.MessageDto;
 import ru.itis.maletskov.internship.dto.ServerResponseDto;
 import ru.itis.maletskov.internship.form.MessageForm;
-import ru.itis.maletskov.internship.model.MessageType;
+import ru.itis.maletskov.internship.model.type.MessageType;
 import ru.itis.maletskov.internship.service.MessageService;
 import ru.itis.maletskov.internship.util.exception.ChatException;
 import ru.itis.maletskov.internship.util.exception.CommandParsingException;
@@ -34,20 +34,19 @@ public class WSExceptionHandlerController {
         form.setDateTime(LocalDateTime.now());
         form.setChatId(chatId);
         messageService.saveMessage(form);
+
         response.setMessage(MessageDto.fromFormToDto(form));
-        if (e instanceof EntityNotFoundException || e instanceof ChatException || e instanceof InvalidAccessException) {
-            response.getMessage().setType(MessageType.ERROR);
-        }
-        if (e instanceof CommandParsingException || e instanceof YBotException) {
-            response.getMessage().setType(MessageType.COMMAND_ERROR);
-        }
+        response.getMessage().setType(MessageType.ERROR);
         response.setUtilMessage(e.getMessage());
+
         MessageForm serverMessage = new MessageForm();
         serverMessage.setChatId(chatId);
         serverMessage.setType(response.getMessage().getType());
         serverMessage.setDateTime(LocalDateTime.now());
         serverMessage.setText(e.getMessage());
-        messageService.saveMessage(serverMessage);
+        if (!(e instanceof ChatException)) {
+            messageService.saveMessage(serverMessage);
+        }
         return response;
     }
 }

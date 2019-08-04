@@ -15,6 +15,8 @@
         <script src="/webjars/stomp-websocket/stomp.min.js"></script>
         <script src="/js/app.js"></script>
         <script src="/js/chat_bot.js"></script>
+        <script src="/js/render_commands.js"></script>
+        <script src="/js/templates.js"></script>
         <title>${title}</title>
     </head>
     <#nested>
