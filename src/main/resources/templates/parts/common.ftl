@@ -54,9 +54,6 @@
                     <a class="nav-link" href="/chats">Chats</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/ybot">YBot</a>
-                </li>
-                <li class="nav-item">
                     <a class="nav-link" href="/about">About</a>
                 </li>
 
