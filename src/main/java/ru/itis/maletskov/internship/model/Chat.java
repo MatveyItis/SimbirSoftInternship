@@ -31,7 +31,7 @@ public class Chat {
 
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "chat")
     @JsonIgnore
-    private Collection<Message> messages = new ArrayList<>();
+    private List<Message> messages = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<User> members = new HashSet<>();

@@ -6,10 +6,14 @@ function connect() {
     stompClient.connect({}, function (frame) {
         console.log('Connected: ' + frame);
         let chatsId = document.getElementsByName('chatId');
+        if (chatsId.length === 0) {
+            subscribeToCommonChat();
+        }
         for (let i = 0; i < chatsId.length; i++) {
             subscribeToChat(Number(chatsId[i].value));
         }
     });
+
 }
 
 function subscribeToChat(chatId) {
@@ -21,24 +25,49 @@ function subscribeToChat(chatId) {
     }
 }
 
+function subscribeToCommonChat() {
+    if (stompClient !== null) {
+        stompClient.subscribe('/topic/messages', function (response) {
+            console.log("Received response " + response);
+            handleResponse(JSON.parse(response.body));
+        });
+    }
+}
+
 function unsubscribeFromChat(chatId) {
     if (stompClient !== null) {
-        stompClient.unsubscribe('/topic/messages' + Number(chatId), function () {
+        stompClient.unsubscribe('/topic/messages/' + Number(chatId), function () {
             console.log('Unsubscribed from chat')
         })
     }
 }
 
+function unsubscribeFromAllChats() {
+    let chatsId = document.getElementsByName('chatId');
+    for (let i = 0; i < chatsId.length; i++) {
+        unsubscribeFromChat(Number(chatsId[i].value));
+    }
+}
+
 function getCurrentChatId() {
     let activeChatLink = document.getElementsByClassName("list-group-item list-group-item-action active")[0];
-    let chatId = activeChatLink.id.substring(5, activeChatLink.id.length - 5);
-    return Number(chatId);
+    if (activeChatLink !== undefined) {
+        let chatId = activeChatLink.id.substring(5, activeChatLink.id.length - 5);
+        return Number(chatId);
+    }
+    return 0;
 }
 
 function sendMessage() {
     let message = $("textarea");
     let currentChatId = getCurrentChatId();
-    if (!(/^\s+$/.test(message.val()))) {
+    if (currentChatId === 0) {
+        stompClient.send("/app/chat", {}, JSON.stringify({
+            'sender': $('#sender').val(),
+            'text': message.val()
+        }));
+        message.val('');
+    } else if (!(/^\s+$/.test(message.val()))) {
         stompClient.send("/app/chat/" + currentChatId, {}, JSON.stringify({
             'sender': $('#sender').val(),
             'text': message.val()
@@ -81,12 +110,14 @@ function handleResponse(response) {
     let dateTime = getDateTime(response.message.dateTime);
     let chatId = response.message.chatId;
     let chatDest = getChatElementByChatId(chats, chatId);
-    $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
-        '<th scope="row" style="width: 80px">' + response.message.sender + '</th>' +
-        '<td colspan="2">' + response.message.text + '</td>' +
-        '<td style="text-align: right; width: 180px">' + dateTime + '</td>' +
-        '</tr>'
-    );
+    if (chatDest !== null && response.message !== undefined) {
+        $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
+            '<th scope="row" style="width: 80px">' + response.message.sender + '</th>' +
+            '<td colspan="2">' + response.message.text + '</td>' +
+            '<td style="text-align: right; width: 180px">' + dateTime + '</td>' +
+            '</tr>'
+        );
+    }
     setTimeout(renderResponse, 300, response, chatDest);
 
     let objDiv = $('#scroll-chat-' + getCurrentChatId())[0];
@@ -124,6 +155,9 @@ function renderResponse(response, chatDest) {
 }
 
 function renderCommandAction(response) {
+    if (response.responseData === null || response.responseData === undefined) {
+        return;
+    }
     let commandType = response.responseData.commandType;
     switch (commandType) {
         case 'CONNECT_ROOM':

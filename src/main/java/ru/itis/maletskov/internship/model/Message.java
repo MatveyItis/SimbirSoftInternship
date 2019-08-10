@@ -13,8 +13,8 @@ import java.time.LocalDateTime;
 @Setter
 @Entity
 @Table(name = "message")
-@EqualsAndHashCode(exclude = "chat")
-@ToString(exclude = "chat")
+@EqualsAndHashCode(exclude = {"chat", "sender"})
+@ToString(exclude = {"chat", "sender"})
 public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,8 +27,9 @@ public class Message {
     @Column(name = "message_type")
     private MessageType type;
 
-    @Column(name = "sender")
-    private String sender;
+    @OneToOne
+    @JoinColumn(name = "sender_id", referencedColumnName = "id")
+    private User sender;
 
     @OneToOne
     @JoinColumn(name = "chat_id", referencedColumnName = "id")

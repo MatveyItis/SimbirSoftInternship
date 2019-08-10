@@ -24,7 +24,6 @@ public class MessageForm {
     public static Message fromFormToMessage(MessageForm form) {
         Message message = new Message();
         message.setText(form.getText());
-        message.setSender(form.getSender());
         message.setType(form.getType());
         message.setDateTime(form.getDateTime());
         return message;

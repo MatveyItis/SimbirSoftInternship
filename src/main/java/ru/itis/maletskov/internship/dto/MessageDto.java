@@ -24,7 +24,9 @@ public class MessageDto {
     public static MessageDto fromMessageToDto(Message message) {
         MessageDto dto = new MessageDto();
         dto.setText(message.getText());
-        dto.setSender(message.getSender());
+        if (message.getSender() != null) {
+            dto.setSender(message.getSender().getLogin());
+        }
         dto.setChatId(message.getChat().getId());
         dto.setType(message.getType());
         dto.setDateTime(message.getDateTime());

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import ru.itis.maletskov.internship.dto.MessageDto;
 import ru.itis.maletskov.internship.dto.ServerResponseDto;
 import ru.itis.maletskov.internship.form.MessageForm;
+import ru.itis.maletskov.internship.form.UtilMessageForm;
 import ru.itis.maletskov.internship.model.type.MessageType;
 import ru.itis.maletskov.internship.service.MessageService;
 import ru.itis.maletskov.internship.util.exception.ChatException;
@@ -33,20 +34,19 @@ public class WSExceptionHandlerController {
         ServerResponseDto response = new ServerResponseDto();
         form.setDateTime(LocalDateTime.now());
         form.setChatId(chatId);
+        form.setType(MessageType.COMMAND);
         messageService.saveMessage(form);
 
         response.setMessage(MessageDto.fromFormToDto(form));
         response.getMessage().setType(MessageType.ERROR);
         response.setUtilMessage(e.getMessage());
 
-        MessageForm serverMessage = new MessageForm();
-        serverMessage.setChatId(chatId);
-        serverMessage.setType(response.getMessage().getType());
-        serverMessage.setDateTime(LocalDateTime.now());
-        serverMessage.setText(e.getMessage());
-        if (!(e instanceof ChatException)) {
-            messageService.saveMessage(serverMessage);
-        }
+        UtilMessageForm utilForm = new UtilMessageForm();
+        utilForm.setType(response.getMessage().getType());
+        utilForm.setUtilMessage(e.getMessage());
+        utilForm.setDateTime(LocalDateTime.now());
+        utilForm.setChatId(chatId);
+        messageService.saveUtilMessage(utilForm);
         return response;
     }
 }

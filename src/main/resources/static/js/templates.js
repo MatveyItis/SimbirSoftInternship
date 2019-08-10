@@ -80,3 +80,22 @@ function createRoomTemplate(chatId, chatName, username) {
         '   </div>' +
         '</div>';
 }
+
+function createStartTemplate() {
+    return "";
+}
+
+function replaceTextAreaForBannedUser(bannedUserLogin, bannedMinuteCount) {
+    if ($('#sender').val() === bannedUserLogin) {
+        $('#text-area').html(
+            '<div class="form-group col-md-11">\n' +
+            '   <textarea readonly class="form-control" placeholder="You are banned for ' + bannedMinuteCount + ' minutes :(">' +
+            '</textarea>\n' +
+            '</div>\n' +
+            '<div class="form-group col-md-1 mt-4">\n' +
+            '   <button class="btn btn-primary btn-raised" disabled type="button">Send\n' +
+            '   </button>\n' +
+            '</div>'
+        );
+    }
+}

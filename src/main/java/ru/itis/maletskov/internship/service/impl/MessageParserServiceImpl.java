@@ -10,7 +10,10 @@ import ru.itis.maletskov.internship.model.type.MessageType;
 import ru.itis.maletskov.internship.service.ChatService;
 import ru.itis.maletskov.internship.service.MessageParserService;
 import ru.itis.maletskov.internship.service.YouTubeService;
+import ru.itis.maletskov.internship.util.BotHelper;
+import ru.itis.maletskov.internship.util.exception.ChatException;
 import ru.itis.maletskov.internship.util.exception.CommandParsingException;
+import ru.itis.maletskov.internship.util.exception.InvalidAccessException;
 import ru.itis.maletskov.internship.util.exception.YBotException;
 
 import java.io.IOException;
@@ -32,9 +35,9 @@ public class MessageParserServiceImpl implements MessageParserService {
             connectRoom(command, response, form);
         } else if (command.contains("//room rename ")) {
             renameRoom(command, response, form);
-        } else if (command.contains("//room remove ")) {
+        } else if (command.contains("//room remove")) {
             removeRoom(command, response, form);
-        } else if (command.contains("//room disconnect ")) {
+        } else if (command.contains("//room disconnect")) {
             disconnectRoom(command, response, form);
         } else if (command.contains("//user ban ")) {
             banUser(command, response, form);
@@ -85,7 +88,7 @@ public class MessageParserServiceImpl implements MessageParserService {
         ResponseDataDto responseData = new ResponseDataDto();
         responseData.setCommandType(CommandType.CONNECT_ROOM);
         responseData.setConnectedChat(ConnectedChatDto.fromDtoToConnectedChatDto(chatDto));
-        responseData.setConnectedUserLogin(userLogin == null ? form.getSender() : userLogin);
+        responseData.setConnectedUserLogin(userLogin != null ? userLogin : form.getSender());
         response.setResponseData(responseData);
     }
 
@@ -102,14 +105,20 @@ public class MessageParserServiceImpl implements MessageParserService {
         response.setResponseData(responseData);
     }
 
-    private void removeRoom(String command, ServerResponseDto response, MessageForm form) {
+    private void removeRoom(String command, ServerResponseDto response, MessageForm form) throws InvalidAccessException {
         String chatName = command.substring(14);
         chatService.deleteChat(chatName, form.getSender());
         response.getMessage().setType(MessageType.COMMAND);
+
+        ResponseDataDto responseData = new ResponseDataDto();
+        responseData.setRemovedChatName(chatName);
+        responseData.setChatId(form.getChatId());
+        responseData.setCommandType(CommandType.REMOVE_ROOM);
+        response.setResponseData(responseData);
         response.setUtilMessage("Chat has been removed:(");
     }
 
-    private void disconnectRoom(String command, ServerResponseDto response, MessageForm form) throws Exception {
+    private void disconnectRoom(String command, ServerResponseDto response, MessageForm form) throws ChatException {
         ChatDto chatDto = chatService.findChatById(form.getChatId());
         boolean isContainsUser = command.contains(" -l ");
         boolean isContainsMinute = command.contains(" -m ");
@@ -138,11 +147,11 @@ public class MessageParserServiceImpl implements MessageParserService {
         }
         response.getMessage().setType(MessageType.COMMAND);
         responseData.setChatId(dto.getId());
-
+        responseData.setCommandType(CommandType.DISCONNECT_ROOM);
         response.setResponseData(responseData);
     }
 
-    private void banUser(String command, ServerResponseDto response, MessageForm form) throws Exception {
+    private void banUser(String command, ServerResponseDto response, MessageForm form) throws CommandParsingException {
         boolean isContainsUserLogin = command.contains(" -l ");
         boolean isContainsMinuteCount = command.contains(" -m ");
         if (isContainsMinuteCount && isContainsUserLogin) {
@@ -150,6 +159,13 @@ public class MessageParserServiceImpl implements MessageParserService {
             Integer minuteCount = Integer.valueOf(command.substring(command.indexOf(" -m ") + 4));
             chatService.banUser(userLogin, minuteCount, form.getSender());
             response.getMessage().setType(MessageType.COMMAND);
+            response.setUtilMessage("User " + userLogin + " has been banned for " + minuteCount + " minutes");
+
+            ResponseDataDto responseData = new ResponseDataDto();
+            responseData.setCommandType(CommandType.USER_BAN);
+            responseData.setBannedUserLogin(userLogin);
+            responseData.setBannedMinuteCount(minuteCount);
+            response.setResponseData(responseData);
         } else {
             throw new CommandParsingException("Invalid command. Required attributes ' -l ' and ' -m ' is empty");
         }
@@ -161,7 +177,7 @@ public class MessageParserServiceImpl implements MessageParserService {
 
     }
 
-    private void actionWithModerator(String command, ServerResponseDto response, MessageForm form) throws Exception {
+    private void actionWithModerator(String command, ServerResponseDto response, MessageForm form) throws CommandParsingException, ChatException, InvalidAccessException {
         boolean nominated = command.contains(" -n") || command.contains(" -n ");
         boolean downgraded = command.contains(" -d") || command.contains(" -d ");
         if ((nominated && downgraded) || (!nominated && !downgraded)) {
@@ -181,7 +197,7 @@ public class MessageParserServiceImpl implements MessageParserService {
         }
     }
 
-    private void findVideo(String command, ServerResponseDto response) throws Exception {
+    private void findVideo(String command, ServerResponseDto response) throws CommandParsingException, YBotException {
         boolean isContainsChannelName = command.contains(" -k ");
         boolean isContainsVideoName = command.contains(" -w ");
         boolean isContainsViewMarker = command.contains(" -v ");
@@ -196,7 +212,7 @@ public class MessageParserServiceImpl implements MessageParserService {
             response.setUtilMessage(utilMessage);
             response.getMessage().setType(MessageType.YBOT_COMMAND);
         } catch (IOException | JSONException e) {
-            throw new YBotException(e.getMessage());
+            throw new YBotException(e.getMessage(), e);
         }
     }
 
@@ -205,7 +221,13 @@ public class MessageParserServiceImpl implements MessageParserService {
     }
 
     private void chatBotHelp(String command, ServerResponseDto response, MessageForm form) {
-
+        form.setType(MessageType.COMMAND);
+        response.setMessage(MessageDto.fromFormToDto(form));
+//        ResponseDataDto data = new ResponseDataDto();
+//        data.setChatBotHelpInfo(BotHelper.getChatBotInfo());
+//        data.setCommandType(CommandType.HELP);
+//        response.setResponseData(data);
+        response.setUtilMessage(BotHelper.getChatBotInfo());
     }
 
     private void handleMessage(ServerResponseDto response, MessageForm form) {

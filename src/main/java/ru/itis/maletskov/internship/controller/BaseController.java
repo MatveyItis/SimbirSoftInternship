@@ -15,9 +15,9 @@ public class BaseController {
         return "login";
     }
 
-    @GetMapping("/ybot")
+    @GetMapping(value = {"/", "/home"})
     public String homePage() {
-        return "ybot";
+        return "home";
     }
 
     @GetMapping("/about")

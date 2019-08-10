@@ -1,21 +1,23 @@
 package ru.itis.maletskov.internship.service;
 
 import ru.itis.maletskov.internship.dto.ChatDto;
+import ru.itis.maletskov.internship.util.exception.ChatException;
+import ru.itis.maletskov.internship.util.exception.InvalidAccessException;
 
 import java.util.List;
 
 public interface ChatService {
-    ChatDto createChat(String name, String ownerLogin, Boolean chatType) throws Exception;
+    ChatDto createChat(String name, String ownerLogin, Boolean chatType) throws ChatException;
 
-    ChatDto addUserToChat(String chatName, String username, String otherUsername) throws Exception;
+    ChatDto addUserToChat(String chatName, String username, String otherUsername) throws InvalidAccessException, ChatException;
 
-    ChatDto nominateToModerator(Long chatId, String userLogin, String username) throws Exception;
+    ChatDto nominateToModerator(Long chatId, String userLogin, String username) throws ChatException, InvalidAccessException;
 
-    ChatDto downgradeToUser(Long chatId, String userLogin, String username) throws Exception;
+    ChatDto downgradeToUser(Long chatId, String userLogin, String username) throws ChatException, InvalidAccessException;
 
-    void deleteChat(String chatName, String username);
+    void deleteChat(String chatName, String username) throws InvalidAccessException;
 
-    ChatDto renameChat(Long chatId, String newChatName, String username) throws Exception;
+    ChatDto renameChat(Long chatId, String newChatName, String username) throws ChatException, InvalidAccessException;
 
     List<ChatDto> findAvailableChatsForUser(String username);
 
@@ -25,9 +27,9 @@ public interface ChatService {
 
     Boolean existsChatById(Long id);
 
-    ChatDto exitFromChat(String chatName, String username) throws Exception;
+    ChatDto exitFromChat(String chatName, String username) throws ChatException;
 
-    ChatDto exitFromChat(String chatName, String loginUser, Integer minute, String username) throws Exception;
+    ChatDto exitFromChat(String chatName, String loginUser, Integer minute, String username) throws ChatException;
 
-    ChatDto banUser(String userLogin, Integer minuteCount, String sender) throws Exception;
+    Boolean banUser(String userLogin, Integer minuteCount, String sender);
 }
