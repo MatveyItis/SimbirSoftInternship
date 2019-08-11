@@ -78,14 +78,6 @@ function sendMessage() {
     }
 }
 
-function contains(arr, elem) {
-    let newArr = [];
-    for (let i = 0; i < arr.length; i++) {
-        newArr.push(arr[i].id.substring(5, arr[i].id.length));
-    }
-    return (newArr + "").indexOf(elem) !== -1;
-}
-
 function getDateTime(time) {
     let dateTime = new Date(Date.parse(time));
     dateTime.setHours(dateTime.getHours() + 3);
@@ -131,19 +123,24 @@ function renderResponse(response, chatDest) {
 
     } else if (type === 'COMMAND') {
         renderCommandAction(response);
-        $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
-            '<th scope="row" style="width: 80px; color: forestgreen">Server: </th>' +
-            '<td colspan="2">' + response.utilMessage + '</td>' +
-            '<td style="text-align: right; width: 180px">' + dateTime + '</td>' +
-            '</tr>'
-        );
+        if (response.utilMessage !== null && response.utilMessage !== undefined) {
+            $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
+                '<th scope="row" style="width: 80px; color: forestgreen">Server: </th>' +
+                '<td colspan="2">' + response.utilMessage + '</td>' +
+                '<td style="text-align: right; width: 180px">' + dateTime + '</td>' +
+                '</tr>'
+            );
+        }
     } else if (type === 'YBOT_COMMAND') {
-        $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
-            '<th scope="row" style="width: 80px; color: cornflowerblue">yBot: </th>' +
-            '<td colspan="2"><a href="' + response.utilMessage + '" target="_blank">' + response.utilMessage + '</a></td>' +
-            '<td style="text-align: right; width: 180px">' + dateTime + '</td>' +
-            '</tr>'
-        );
+        renderCommandAction(response);
+        if (response.utilMessage !== null && response.utilMessage !== undefined) {
+            $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
+                '<th scope="row" style="width: 80px; color: cornflowerblue">yBot: </th>' +
+                '<td colspan="2"><a href="' + response.utilMessage + '" target="_blank">' + response.utilMessage + '</a></td>' +
+                '<td style="text-align: right; width: 180px">' + dateTime + '</td>' +
+                '</tr>'
+            );
+        }
     } else if (type === 'ERROR') {
         $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
             '<th scope="row" style="width: 80px;"><strong style="color: red">Server: </strong></th>' +
@@ -152,6 +149,8 @@ function renderResponse(response, chatDest) {
             '</tr>'
         );
     }
+    let objDiv = $('#scroll-chat-' + getCurrentChatId())[0];
+    objDiv.scrollTop = objDiv.scrollHeight;
 }
 
 function renderCommandAction(response) {
@@ -184,6 +183,12 @@ function renderCommandAction(response) {
         case 'USER_MODERATOR':
             renderUserModerator(response);
             break;
+        case 'HELP':
+            renderChatBotHelp(response);
+            break;
+        case 'YBOT_HELP':
+            renderYBotHelp(response);
+            break;
         default:
             console.log('Что-то пошло не так')
     }
@@ -197,4 +202,8 @@ $(function () {
             $("#send").click();
         }
     });
+
+    $('#send').click(function () {
+        sendMessage();
+    })
 });

@@ -111,7 +111,6 @@
                                     <tbody id="greetings">
                                     <#if chat.messages??>
                                         <#list chat.messages as message>
-                                        <#--todo check types of response-->
                                             <tr>
                                                 <th scope="row" style="width: 80px">
                                                     <#if message.sender??>
@@ -126,9 +125,14 @@
                                                 </th>
                                                 <td colspan="2">
                                                     <#if message.type.name() == 'YBOT_COMMAND' && !(message.sender??)>
-                                                        <a href="${message.text}"
-                                                           target="_blank">${message.text}</a>
-                                                    <#else >
+                                                        <#if message.text?contains(' ')>
+                                                            <a href="${message.text?substring(0, message.text?index_of(' '))}"
+                                                               target="_blank">${message.text}</a> ${message.text?substring(message.text?index_of(' '))}
+                                                        <#else >
+                                                            <a href="${message.text}"
+                                                               target="_blank">${message.text}</a>
+                                                        </#if>
+                                                    <#else>
                                                         ${message.text}
                                                     </#if>
                                                 </td>
@@ -168,7 +172,7 @@
                         <textarea id="text" class="form-control" placeholder="Type your text here..."></textarea>
                     </div>
                     <div class="form-group col-md-1 mt-4">
-                        <button id="send" class="btn btn-primary btn-raised" type="button" onclick="sendMessage()">Send
+                        <button id="send" class="btn btn-primary btn-raised" type="button">Send
                         </button>
                         <input type="hidden" readonly name="sender" id="sender" value="${username}">
                     </div>

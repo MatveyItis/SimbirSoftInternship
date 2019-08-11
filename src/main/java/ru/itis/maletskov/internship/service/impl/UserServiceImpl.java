@@ -9,10 +9,13 @@ import ru.itis.maletskov.internship.model.Role;
 import ru.itis.maletskov.internship.model.User;
 import ru.itis.maletskov.internship.repository.UserRepository;
 import ru.itis.maletskov.internship.service.UserService;
+import ru.itis.maletskov.internship.util.exception.InvalidAccessException;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -35,5 +38,27 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(userForm.getPassword()));
         user.setRoles(Collections.singleton(Role.USER));
         return UserDto.fromUserToDto(userRepository.save(user));
+    }
+
+    @Override
+    public UserDto renameUser(String username, String newUsername) throws InvalidAccessException {
+        Optional<User> userCandidate = userRepository.findByLogin(username);
+        if (!userCandidate.isPresent()) {
+            throw new EntityNotFoundException("User with username " + username + " is not found");
+        }
+        if (userRepository.existsUserByLogin(newUsername)) {
+            throw new InvalidAccessException("Cannot rename username. User with name '" + newUsername + "' already exists");
+        }
+        userCandidate.get().setLogin(newUsername);
+        return UserDto.fromUserToDto(userRepository.save(userCandidate.get()));
+    }
+
+    @Override
+    public UserDto getUserById(Long id) {
+        Optional<User> userCandidate = userRepository.findById(id);
+        if (!userCandidate.isPresent()) {
+            throw new EntityNotFoundException("User with id := " + id + " is not found");
+        }
+        return UserDto.fromUserToDto(userCandidate.get());
     }
 }

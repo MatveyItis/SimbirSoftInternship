@@ -1,9 +1,9 @@
 function renderConnectRoom(response) {
     let chatId = response.responseData.connectedChat.id;
-    subscribeToChat(chatId);
     let connectedChatName = response.responseData.connectedChat.name;
     let connectedUserLogin = response.responseData.connectedUserLogin;
     if ($('#sender').val() === connectedUserLogin) {
+        subscribeToChat(chatId);
         $('#chats').append(
             '<a class="list-group-item list-group-item-action"\n' +
             'id="chat-' + chatId + '-list" data-toggle="list"\n' +
@@ -68,6 +68,23 @@ function renderRenameRoom(response) {
 }
 
 function renderUserRename(response) {
+    let renamedUserLogin = response.responseData.renamedUserLogin;
+    $('#sender').val(renamedUserLogin);
+    let chatId = getCurrentChatId();
+    let dateTime = getDateTime(response.message.dateTime);
+    let chats = document.getElementsByClassName("tab-pane fade");
+    for (let i = 0; i < chats.length; i++) {
+        let currentChatId = Number(chats[i].id.substring(5, chats[i].id.length));
+        let chatDest = getChatElementByChatId(chats, currentChatId);
+        if (currentChatId !== chatId) {
+            $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
+                '<th scope="row" style="width: 80px; color: forestgreen">Server: </th>' +
+                '<td colspan="2">' + response.utilMessage + '</td>' +
+                '<td style="text-align: right; width: 180px">' + dateTime + '</td>' +
+                '</tr>'
+            );
+        }
+    }
 
 }
 

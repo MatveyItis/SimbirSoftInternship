@@ -9,6 +9,7 @@ import ru.itis.maletskov.internship.model.type.CommandType;
 import ru.itis.maletskov.internship.model.type.MessageType;
 import ru.itis.maletskov.internship.service.ChatService;
 import ru.itis.maletskov.internship.service.MessageParserService;
+import ru.itis.maletskov.internship.service.UserService;
 import ru.itis.maletskov.internship.service.YouTubeService;
 import ru.itis.maletskov.internship.util.BotHelper;
 import ru.itis.maletskov.internship.util.exception.ChatException;
@@ -22,6 +23,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class MessageParserServiceImpl implements MessageParserService {
     private final ChatService chatService;
+    private final UserService userService;
     private final YouTubeService youTubeService;
 
     @Override
@@ -48,9 +50,9 @@ public class MessageParserServiceImpl implements MessageParserService {
         } else if (command.contains("//yBot find ")) {
             findVideo(command, response);
         } else if (command.contains("//yBot help")) {
-            yBotHelp(command, response, form);
+            yBotHelp(response, form);
         } else if (command.contains("//help")) {
-            chatBotHelp(command, response, form);
+            chatBotHelp(response, form);
         } else {
             handleMessage(response, form);
         }
@@ -172,9 +174,19 @@ public class MessageParserServiceImpl implements MessageParserService {
     }
 
 
-    private void renameUser(String command, ServerResponseDto response, MessageForm form) {
-        String newUsername = command.trim().substring(13);
+    private void renameUser(String command, ServerResponseDto response, MessageForm form) throws InvalidAccessException {
+        String newUsername = command.substring(13).trim();
+        UserDto userDto = userService.renameUser(form.getSender(), newUsername);
+        response.setUtilMessage("'" + form.getSender() + "' rename your username. New username is '" + newUsername + "'");
+        form.setSender(userDto.getLogin());
+        response.setMessage(MessageDto.fromFormToDto(form));
+        response.getMessage().setType(MessageType.COMMAND);
 
+        ResponseDataDto dataDto = new ResponseDataDto();
+        dataDto.setCommandType(CommandType.USER_RENAME);
+        dataDto.setRenamedUserLogin(userDto.getLogin());
+
+        response.setResponseData(dataDto);
     }
 
     private void actionWithModerator(String command, ServerResponseDto response, MessageForm form) throws CommandParsingException, ChatException, InvalidAccessException {
@@ -216,17 +228,15 @@ public class MessageParserServiceImpl implements MessageParserService {
         }
     }
 
-    private void yBotHelp(String command, ServerResponseDto response, MessageForm form) {
-
+    private void yBotHelp(ServerResponseDto response, MessageForm form) {
+        form.setType(MessageType.YBOT_COMMAND);
+        response.setMessage(MessageDto.fromFormToDto(form));
+        response.setUtilMessage(BotHelper.getYBotInfo());
     }
 
-    private void chatBotHelp(String command, ServerResponseDto response, MessageForm form) {
+    private void chatBotHelp(ServerResponseDto response, MessageForm form) {
         form.setType(MessageType.COMMAND);
         response.setMessage(MessageDto.fromFormToDto(form));
-//        ResponseDataDto data = new ResponseDataDto();
-//        data.setChatBotHelpInfo(BotHelper.getChatBotInfo());
-//        data.setCommandType(CommandType.HELP);
-//        response.setResponseData(data);
         response.setUtilMessage(BotHelper.getChatBotInfo());
     }
 
