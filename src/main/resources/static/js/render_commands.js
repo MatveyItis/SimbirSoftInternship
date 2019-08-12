@@ -99,3 +99,51 @@ function renderUserBan(response) {
 function renderUserModerator(response) {
 
 }
+
+function renderFiveLastVideos(response) {
+    let channelName = response.responseData.channelName;
+    let videoReferences = response.responseData.videoReferences;
+    let chatId = response.message.chatId;
+    let dateTime = getDateTime(response.message.dateTime);
+    let chats = document.getElementsByClassName("tab-pane fade");
+    let chatDest = getChatElementByChatId(chats, chatId);
+    $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
+        '<th scope="row" style="width: 80px; color: dodgerblue">yBot:</th>' +
+        '<td colspan="2">' + channelName + '</td>' +
+        '<td style="text-align: right; width: 180px">' + dateTime + '</td>' +
+        '</tr>'
+    );
+    let hrefs = '';
+    for (let i = 0; i < videoReferences.length; i++) {
+        hrefs += '<a href="' + videoReferences[i] + '" target="_blank">' + videoReferences[i] + '</a><br>'
+    }
+    $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
+        '<th scope="row" style="width: 80px; color: dodgerblue">yBot:</th>' +
+        '<td colspan="2">' + hrefs + '</td>' +
+        '<td style="text-align: right; width: 180px">' + dateTime + '</td>' +
+        '</tr>'
+    );
+}
+
+function renderCommentRandom(response) {
+    let commentInfo = response.responseData.commentInfo;
+    let commentAuthorName = commentInfo.substring(0, commentInfo.indexOf("::"));
+    let commentName = commentInfo.substring(commentInfo.indexOf("::") + 2);
+    let dateTime = getDateTime(response.message.dateTime);
+    let chats = document.getElementsByClassName("tab-pane fade");
+    let chatId = response.message.chatId;
+    let chatDest = getChatElementByChatId(chats, chatId);
+    $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
+        '<th scope="row" style="width: 80px; color: dodgerblue">yBot:</th>' +
+        '<td colspan="2">' + commentAuthorName + '</td>' +
+        '<td style="text-align: right; width: 180px">' + dateTime + '</td>' +
+        '</tr>'
+    );
+    $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
+        '<th scope="row" style="width: 80px; color: dodgerblue">yBot:</th>' +
+        '<td colspan="2">' + commentName + '</td>' +
+        '<td style="text-align: right; width: 180px">' + dateTime + '</td>' +
+        '</tr>'
+    );
+
+}

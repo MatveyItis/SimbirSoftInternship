@@ -6,6 +6,8 @@ import lombok.Setter;
 import lombok.ToString;
 import ru.itis.maletskov.internship.model.type.CommandType;
 
+import java.util.List;
+
 @Getter
 @Setter
 @ToString
@@ -29,4 +31,7 @@ public class ResponseDataDto {
     private String downgradedModeratorLogin;
     private String chatBotHelpInfo;
     private String yBotHelpInfo;
+    private List<String> videoReferences;
+    private String channelName;
+    private String commentInfo;
 }

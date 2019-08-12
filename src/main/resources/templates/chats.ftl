@@ -127,7 +127,8 @@
                                                     <#if message.type.name() == 'YBOT_COMMAND' && !(message.sender??)>
                                                         <#if message.text?contains(' ')>
                                                             <a href="${message.text?substring(0, message.text?index_of(' '))}"
-                                                               target="_blank">${message.text}</a> ${message.text?substring(message.text?index_of(' '))}
+                                                               target="_blank">${message.text?substring(0, message.text?index_of(' '))}</a>
+                                                            ${message.text?substring(message.text?index_of(' '))}
                                                         <#else >
                                                             <a href="${message.text}"
                                                                target="_blank">${message.text}</a>

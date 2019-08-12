@@ -18,6 +18,7 @@ import ru.itis.maletskov.internship.util.exception.InvalidAccessException;
 import ru.itis.maletskov.internship.util.exception.YBotException;
 
 import java.io.IOException;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +28,8 @@ public class MessageParserServiceImpl implements MessageParserService {
     private final YouTubeService youTubeService;
 
     @Override
-    public ServerResponseDto parseMessage(MessageForm form) throws Exception {
+    public ServerResponseDto parseMessage(MessageForm form) throws
+            ChatException, InvalidAccessException, CommandParsingException, YBotException {
         ServerResponseDto response = new ServerResponseDto();
         response.setMessage(MessageDto.fromFormToDto(form));
         String command = form.getText();
@@ -53,6 +55,10 @@ public class MessageParserServiceImpl implements MessageParserService {
             yBotHelp(response, form);
         } else if (command.contains("//help")) {
             chatBotHelp(response, form);
+        } else if (command.contains("//yBot changelInfo ")) {
+            yBotGetFiveLastVideos(command, response, form);
+        } else if (command.contains("//yBot videoCommentRandom ")) {
+            yBotGetVideoRandomComment(command, response, form);
         } else {
             handleMessage(response, form);
         }
@@ -60,7 +66,7 @@ public class MessageParserServiceImpl implements MessageParserService {
     }
 
 
-    private void createRoom(String command, ServerResponseDto response, MessageForm form) throws Exception {
+    private void createRoom(String command, ServerResponseDto response, MessageForm form) throws ChatException {
         boolean isPrivate = command.contains(" -c ");
         String chatName = command.substring(isPrivate ? 17 : 14);
         ChatDto chatDto = chatService.createChat(chatName, form.getSender(), isPrivate);
@@ -76,7 +82,7 @@ public class MessageParserServiceImpl implements MessageParserService {
         response.setResponseData(responseData);
     }
 
-    private void connectRoom(String command, ServerResponseDto response, MessageForm form) throws Exception {
+    private void connectRoom(String command, ServerResponseDto response, MessageForm form) throws InvalidAccessException, ChatException {
         boolean containsLogin = command.contains(" -l ");
         String chatName = command.substring(15, containsLogin ? command.indexOf(" -l ") : command.length()).trim();
         String userLogin = null;
@@ -94,7 +100,7 @@ public class MessageParserServiceImpl implements MessageParserService {
         response.setResponseData(responseData);
     }
 
-    private void renameRoom(String command, ServerResponseDto response, MessageForm form) throws Exception {
+    private void renameRoom(String command, ServerResponseDto response, MessageForm form) throws ChatException, InvalidAccessException {
         String newChatName = command.substring(14);
         ChatDto chatDto = chatService.renameChat(form.getChatId(), newChatName, form.getSender());
         response.getMessage().setType(MessageType.COMMAND);
@@ -212,18 +218,55 @@ public class MessageParserServiceImpl implements MessageParserService {
     private void findVideo(String command, ServerResponseDto response) throws CommandParsingException, YBotException {
         boolean isContainsChannelName = command.contains(" -k ");
         boolean isContainsVideoName = command.contains(" -w ");
-        boolean isContainsViewMarker = command.contains(" -v ");
-        boolean isContainsLikeMarker = command.contains(" -l ");
         if (!isContainsChannelName || !isContainsVideoName) {
-            throw new CommandParsingException("Missing required attributes ' -k ' {channel name} and ' -l ' {video name}");
+            throw new CommandParsingException("Missing required attributes ' -k ' {channel name} and ' -w ' {video name}");
         }
+        boolean isContainsViewMarker = command.contains(" -v") || command.contains(" -v ");
+        boolean isContainsLikeMarker = command.contains(" -l") || command.contains(" -l ");
         String channelName = command.substring(command.indexOf(" -k ") + 4, command.indexOf(" -w "));
-        String videoName = command.substring(command.indexOf(" -w ") + 4);
+        String videoName;
+        if (isContainsViewMarker && isContainsLikeMarker) {
+            videoName = command.substring(command.indexOf(" -w ") + 4, command.indexOf(" -v "));
+        } else {
+            videoName = command.substring(command.indexOf(" -w ") + 4);
+        }
         try {
             String utilMessage = youTubeService.searchVideo(channelName, videoName, isContainsViewMarker, isContainsLikeMarker);
             response.setUtilMessage(utilMessage);
             response.getMessage().setType(MessageType.YBOT_COMMAND);
         } catch (IOException | JSONException e) {
+            throw new YBotException(e.getMessage(), e);
+        }
+    }
+
+    private void yBotGetFiveLastVideos(String command, ServerResponseDto response, MessageForm form) throws YBotException {
+        String channelName = command.substring(19).trim();
+        try {
+            List<String> videoReferences = youTubeService.getFiveLastVideos(channelName);
+            ResponseDataDto dataDto = new ResponseDataDto();
+            dataDto.setVideoReferences(videoReferences);
+            dataDto.setChannelName(channelName);
+            dataDto.setCommandType(CommandType.YBOT_FIVE_LAST_VIDEOS);
+            response.setMessage(MessageDto.fromFormToDto(form));
+            response.getMessage().setType(MessageType.YBOT_COMMAND);
+            response.setResponseData(dataDto);
+        } catch (IOException | JSONException e) {
+            throw new YBotException(e.getMessage(), e);
+        }
+    }
+
+    private void yBotGetVideoRandomComment(String command, ServerResponseDto response, MessageForm form) throws YBotException {
+        String channelName = command.substring(26, command.indexOf(" || ")).trim();
+        String videoName = command.substring(command.indexOf(" || ") + 4).trim();
+        try {
+            String commentInfo = youTubeService.getRandomComment(channelName, videoName);
+            ResponseDataDto dataDto = new ResponseDataDto();
+            dataDto.setCommandType(CommandType.YBOT_RANDOM_COMMENT);
+            dataDto.setCommentInfo(commentInfo);
+            response.setMessage(MessageDto.fromFormToDto(form));
+            response.getMessage().setType(MessageType.YBOT_COMMAND);
+            response.setResponseData(dataDto);
+        } catch (IOException | JSONException | YBotException e) {
             throw new YBotException(e.getMessage(), e);
         }
     }

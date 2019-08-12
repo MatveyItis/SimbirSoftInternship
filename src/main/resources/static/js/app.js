@@ -133,10 +133,17 @@ function renderResponse(response, chatDest) {
         }
     } else if (type === 'YBOT_COMMAND') {
         renderCommandAction(response);
-        if (response.utilMessage !== null && response.utilMessage !== undefined) {
+        let yBotResponse = response.utilMessage;
+        if (yBotResponse !== null && yBotResponse !== undefined) {
+            let videoHref = yBotResponse;
+            let otherInfo = ' ';
+            if (yBotResponse.includes(" v=") || yBotResponse.includes(" l=")) {
+                videoHref = yBotResponse.substring(0, yBotResponse.indexOf(" "));
+                otherInfo = otherInfo + yBotResponse.substring(yBotResponse.indexOf(" ") + 1);
+            }
             $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
                 '<th scope="row" style="width: 80px; color: cornflowerblue">yBot: </th>' +
-                '<td colspan="2"><a href="' + response.utilMessage + '" target="_blank">' + response.utilMessage + '</a></td>' +
+                '<td colspan="2"><a href="' + response.utilMessage + '" target="_blank">' + videoHref + '</a> ' + otherInfo + '</td>' +
                 '<td style="text-align: right; width: 180px">' + dateTime + '</td>' +
                 '</tr>'
             );
@@ -183,11 +190,11 @@ function renderCommandAction(response) {
         case 'USER_MODERATOR':
             renderUserModerator(response);
             break;
-        case 'HELP':
-            renderChatBotHelp(response);
+        case 'YBOT_FIVE_LAST_VIDEOS':
+            renderFiveLastVideos(response);
             break;
-        case 'YBOT_HELP':
-            renderYBotHelp(response);
+        case 'YBOT_RANDOM_COMMENT':
+            renderCommentRandom(response);
             break;
         default:
             console.log('Что-то пошло не так')
