@@ -233,7 +233,7 @@ public class MessageParserServiceImpl implements MessageParserService {
         try {
             String utilMessage = youTubeService.searchVideo(channelName, videoName, isContainsViewMarker, isContainsLikeMarker);
             response.setUtilMessage(utilMessage);
-            response.getMessage().setType(MessageType.YBOT_COMMAND);
+            response.getMessage().setType(MessageType.YBOT_FIND);
         } catch (IOException | JSONException e) {
             throw new YBotException(e.getMessage(), e);
         }
@@ -248,8 +248,9 @@ public class MessageParserServiceImpl implements MessageParserService {
             dataDto.setChannelName(channelName);
             dataDto.setCommandType(CommandType.YBOT_FIVE_LAST_VIDEOS);
             response.setMessage(MessageDto.fromFormToDto(form));
-            response.getMessage().setType(MessageType.YBOT_COMMAND);
+            response.getMessage().setType(MessageType.YBOT_FIVE_LAST_VIDEOS);
             response.setResponseData(dataDto);
+            response.setUtilMessage(channelName + " " + videoReferences.toString());
         } catch (IOException | JSONException e) {
             throw new YBotException(e.getMessage(), e);
         }
@@ -264,8 +265,9 @@ public class MessageParserServiceImpl implements MessageParserService {
             dataDto.setCommandType(CommandType.YBOT_RANDOM_COMMENT);
             dataDto.setCommentInfo(commentInfo);
             response.setMessage(MessageDto.fromFormToDto(form));
-            response.getMessage().setType(MessageType.YBOT_COMMAND);
+            response.getMessage().setType(MessageType.YBOT_RANDOM_COMMENT);
             response.setResponseData(dataDto);
+            response.setUtilMessage(commentInfo);
         } catch (IOException | JSONException | YBotException e) {
             throw new YBotException(e.getMessage(), e);
         }

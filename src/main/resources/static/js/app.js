@@ -131,10 +131,12 @@ function renderResponse(response, chatDest) {
                 '</tr>'
             );
         }
-    } else if (type === 'YBOT_COMMAND') {
+    } else if (type === 'YBOT_COMMAND' || type === 'YBOT_FIND' ||
+        type === 'YBOT_FIVE_LAST_VIDEOS' || type === 'YBOT_RANDOM_COMMENT') {
         renderCommandAction(response);
         let yBotResponse = response.utilMessage;
-        if (yBotResponse !== null && yBotResponse !== undefined) {
+        if (yBotResponse !== null && yBotResponse !== undefined &&
+            (type !== 'YBOT_RANDOM_COMMENT' && type !== 'YBOT_FIVE_LAST_VIDEOS')) {
             let videoHref = yBotResponse;
             let otherInfo = ' ';
             if (yBotResponse.includes(" v=") || yBotResponse.includes(" l=")) {

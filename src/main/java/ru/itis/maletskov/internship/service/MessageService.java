@@ -1,8 +1,8 @@
 package ru.itis.maletskov.internship.service;
 
 import ru.itis.maletskov.internship.dto.MessageDto;
+import ru.itis.maletskov.internship.dto.ServerResponseDto;
 import ru.itis.maletskov.internship.form.MessageForm;
-import ru.itis.maletskov.internship.form.UtilMessageForm;
 import ru.itis.maletskov.internship.util.exception.InvalidAccessException;
 
 import java.util.List;
@@ -14,5 +14,5 @@ public interface MessageService {
 
     List<MessageDto> findAllMessages();
 
-    MessageDto saveUtilMessage(UtilMessageForm form) throws Exception;
+    MessageDto saveUtilMessage(ServerResponseDto responseDto, Long chatId) throws Exception;
 }

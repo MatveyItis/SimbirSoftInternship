@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import ru.itis.maletskov.internship.dto.MessageDto;
 import ru.itis.maletskov.internship.dto.ServerResponseDto;
 import ru.itis.maletskov.internship.form.MessageForm;
-import ru.itis.maletskov.internship.form.UtilMessageForm;
 import ru.itis.maletskov.internship.model.type.MessageType;
 import ru.itis.maletskov.internship.service.MessageService;
 import ru.itis.maletskov.internship.util.exception.ChatException;
@@ -41,12 +40,7 @@ public class WSExceptionHandlerController {
         response.getMessage().setType(MessageType.ERROR);
         response.setUtilMessage(e.getMessage());
 
-        UtilMessageForm utilForm = new UtilMessageForm();
-        utilForm.setType(response.getMessage().getType());
-        utilForm.setUtilMessage(e.getMessage());
-        utilForm.setDateTime(LocalDateTime.now());
-        utilForm.setChatId(chatId);
-        messageService.saveUtilMessage(utilForm);
+        messageService.saveUtilMessage(response, chatId);
         return response;
     }
 }

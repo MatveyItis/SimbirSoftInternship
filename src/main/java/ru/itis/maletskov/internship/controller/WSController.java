@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import ru.itis.maletskov.internship.dto.ServerResponseDto;
 import ru.itis.maletskov.internship.dto.UserDto;
 import ru.itis.maletskov.internship.form.MessageForm;
-import ru.itis.maletskov.internship.form.UtilMessageForm;
 import ru.itis.maletskov.internship.model.UserAuth;
 import ru.itis.maletskov.internship.service.*;
 
@@ -40,15 +39,7 @@ public class WSController {
         form.setText(form.getText().trim());
         ServerResponseDto responseDto = parserService.parseMessage(form);
         messageService.saveMessage(MessageForm.fromDtoToForm(responseDto.getMessage()));
-
-        if (responseDto.getUtilMessage() != null) {
-            UtilMessageForm utilForm = new UtilMessageForm();
-            utilForm.setChatId(chatId);
-            utilForm.setDateTime(LocalDateTime.now());
-            utilForm.setType(responseDto.getMessage().getType());
-            utilForm.setUtilMessage(responseDto.getUtilMessage());
-            messageService.saveUtilMessage(utilForm);
-        }
+        messageService.saveUtilMessage(responseDto, chatId);
         return responseDto;
     }
 

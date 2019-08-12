@@ -117,14 +117,17 @@
                                                         ${message.sender}
                                                     <#elseif message.type.name() == 'COMMAND'>
                                                         <strong style="color: forestgreen">Server: </strong>
-                                                    <#elseif message.type.name() == 'YBOT_COMMAND'>
+                                                    <#elseif message.type.name() == 'YBOT_COMMAND' ||
+                                                    message.type.name() == 'YBOT_FIVE_LAST_VIDEOS' ||
+                                                    message.type.name() == 'YBOT_RANDOM_COMMENT'||
+                                                    message.type.name() == 'YBOT_FIND'>
                                                         <strong style="color: dodgerblue">yBot: </strong>
                                                     <#elseif message.type.name() == 'ERROR'>
                                                         <strong style="color: red">Server: </strong>
                                                     </#if>
                                                 </th>
                                                 <td colspan="2">
-                                                    <#if message.type.name() == 'YBOT_COMMAND' && !(message.sender??)>
+                                                    <#if message.type.name() == 'YBOT_FIND' && !(message.sender??)>
                                                         <#if message.text?contains(' ')>
                                                             <a href="${message.text?substring(0, message.text?index_of(' '))}"
                                                                target="_blank">${message.text?substring(0, message.text?index_of(' '))}</a>
@@ -133,9 +136,15 @@
                                                             <a href="${message.text}"
                                                                target="_blank">${message.text}</a>
                                                         </#if>
-                                                    <#else>
+                                                    <#elseif message.type.name() == 'YBOT_FIVE_LAST_VIDEOS' && !(message.sender??)>
+                                                        ${message.text}
+                                                    <#elseif message.type.name() == 'YBOT_RANDOM_COMMENT' && !(message.sender??)>
+                                                        ${message.text?substring(0, message.text?index_of("::"))}<br>
+                                                        ${message.text?substring(message.text?index_of("::") + 2)}
+                                                    <#else >
                                                         ${message.text}
                                                     </#if>
+
                                                 </td>
                                                 <td style="text-align: right; width: 180px">${message.dateTime.format(formatter)}</td>
                                             </tr>

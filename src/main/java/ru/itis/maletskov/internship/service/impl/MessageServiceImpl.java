@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.itis.maletskov.internship.dto.MessageDto;
+import ru.itis.maletskov.internship.dto.ServerResponseDto;
 import ru.itis.maletskov.internship.form.MessageForm;
 import ru.itis.maletskov.internship.form.UtilMessageForm;
 import ru.itis.maletskov.internship.model.Chat;
@@ -17,6 +18,7 @@ import ru.itis.maletskov.internship.service.MessageService;
 import ru.itis.maletskov.internship.util.exception.InvalidAccessException;
 
 import javax.persistence.EntityNotFoundException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -72,16 +74,26 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public MessageDto saveUtilMessage(UtilMessageForm form) throws Exception {
-        Message message = new Message();
-        message.setType(form.getType());
-        message.setDateTime(form.getDateTime());
-        Optional<Chat> chat = chatRepository.findById(form.getChatId());
-        if (!chat.isPresent()) {
-            throw new EntityNotFoundException("Chat with id := " + form.getChatId() + " is not found");
+    public MessageDto saveUtilMessage(ServerResponseDto responseDto, Long chatId) throws Exception {
+        if (responseDto.getUtilMessage() != null) {
+            UtilMessageForm form = new UtilMessageForm();
+            form.setChatId(chatId);
+            form.setDateTime(LocalDateTime.now());
+            form.setType(responseDto.getMessage().getType());
+            form.setUtilMessage(responseDto.getUtilMessage());
+
+            Message message = new Message();
+            message.setType(form.getType());
+            message.setDateTime(form.getDateTime());
+            Optional<Chat> chat = chatRepository.findById(form.getChatId());
+            if (!chat.isPresent()) {
+                throw new EntityNotFoundException("Chat with id := " + form.getChatId() + " is not found");
+            }
+            message.setChat(chat.get());
+            message.setText(form.getUtilMessage());
+            return MessageDto.fromMessageToDto(messageRepository.save(message));
+        } else {
+            return new MessageDto();
         }
-        message.setChat(chat.get());
-        message.setText(form.getUtilMessage());
-        return MessageDto.fromMessageToDto(messageRepository.save(message));
     }
 }
