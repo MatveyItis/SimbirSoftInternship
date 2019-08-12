@@ -57,7 +57,7 @@ public class YouTubeServiceImpl implements YouTubeService {
         JSONObject jsonObject = new JSONObject(EntityUtils.toString(entity));
         JSONArray items = jsonObject.getJSONArray("items");
         if (items.length() == 0) {
-            throw new YBotException("Videos is not found");
+            throw new YBotException("Videos not found");
         }
         List<String> videoReferences = new ArrayList<>();
         for (int i = 0; i < items.length(); i++) {

@@ -7,6 +7,7 @@ import ru.itis.maletskov.internship.model.User;
 import ru.itis.maletskov.internship.repository.BanRepository;
 import ru.itis.maletskov.internship.repository.UserRepository;
 import ru.itis.maletskov.internship.service.BanService;
+import ru.itis.maletskov.internship.util.exception.ExceptionMessages;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
@@ -23,7 +24,7 @@ public class BanServiceImpl implements BanService {
     public Boolean isUserBannedAtTheTime(String username) {
         Optional<User> userCandidate = userRepository.findByLogin(username);
         if (!userCandidate.isPresent()) {
-            throw new EntityNotFoundException("User with name := " + username + " is not found");
+            throw new EntityNotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_MESSAGE, username));
         }
         return banRepository.existsBanByUserAndEndOfBannedAfter(userCandidate.get(), LocalDateTime.now());
     }
@@ -32,7 +33,7 @@ public class BanServiceImpl implements BanService {
     public List<Ban> findAllUserBans(String username) {
         Optional<User> userCandidate = userRepository.findByLogin(username);
         if (!userCandidate.isPresent()) {
-            throw new EntityNotFoundException("User with name := " + username + " is not found");
+            throw new EntityNotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_MESSAGE, username));
         }
         return banRepository.findBansByUser(userCandidate.get());
     }

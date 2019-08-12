@@ -1,7 +1,6 @@
 package ru.itis.maletskov.internship.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import ru.itis.maletskov.internship.dto.ChatDto;
 import ru.itis.maletskov.internship.model.Ban;
@@ -39,7 +38,7 @@ public class ChatServiceImpl implements ChatService {
         chat.setType(chatType ? ChatType.PRIVATE : ChatType.PUBLIC);
         Optional<User> candidate = userRepository.findByLogin(ownerLogin);
         if (!candidate.isPresent()) {
-            throw new UsernameNotFoundException(String.format("Cannot create chat. User with login: %s is not found", ownerLogin));
+            throw new EntityNotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_MESSAGE, ownerLogin));
         }
         chat.setOwner(candidate.get());
         chat.setMembers(Collections.singleton(candidate.get()));
@@ -57,21 +56,21 @@ public class ChatServiceImpl implements ChatService {
         }
         Optional<User> otherUserCandidate = userRepository.findByLogin(otherUsername);
         if (otherUsername != null && !otherUserCandidate.isPresent()) {
-            throw new EntityNotFoundException("Cannot add user to chat. User with login " + otherUsername + " is not found");
+            throw new EntityNotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_MESSAGE, otherUsername));
         }
         Optional<User> userCandidate = userRepository.findByLogin(username);
         boolean usersPresented = userCandidate.isPresent() && otherUserCandidate.isPresent();
         if (usersPresented && (banRepository.existsBanByUserAndEndOfBannedAfter(userCandidate.get(), LocalDateTime.now()) ||
                 banRepository.existsBanByUserAndEndOfBannedAfter(otherUserCandidate.get(), LocalDateTime.now()))) {
-            throw new InvalidAccessException("Cannot add user to chat. User is banned");
+            throw new InvalidAccessException(String.format(ExceptionMessages.USER_IS_BANNED_MESSAGE, otherUsername));
         }
         Chat chat = chatCandidate.get();
         if (usersPresented && ((!chat.getOwner().equals(userCandidate.get())) && ((chat.getAdmin() == null) || !chat.getAdmin().equals(userCandidate.get())))
                 && (chat.getType() == ChatType.PRIVATE)) {
-            throw new InvalidAccessException("Cannot add user to private chat. Insufficient rights");
+            throw new InvalidAccessException(ExceptionMessages.CANNOT_ADD_TO_PRIVATE_CHAT_MESSAGE);
         }
         if (otherUserCandidate.isPresent() && chat.getMembers().contains(otherUserCandidate.get())) {
-            throw new ChatException("Cannot add user to chat because user already in chat");
+            throw new ChatException(ExceptionMessages.USER_ALREADY_IN_CHAT_MESSAGE);
         }
         if (usersPresented && (chat.getOwner().equals(userCandidate.get()) || (chat.getAdmin() != null && chat.getAdmin().equals(userCandidate.get())))) {
             chat.getMembers().add(otherUserCandidate.get());
@@ -89,7 +88,7 @@ public class ChatServiceImpl implements ChatService {
         }
         Optional<User> moderatorCandidate = userRepository.findByLogin(userLogin.trim());
         if (!moderatorCandidate.isPresent()) {
-            throw new EntityNotFoundException("Cannot nominate '" + userLogin + "' to moderator. User is not found");
+            throw new EntityNotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_MESSAGE, userLogin));
         }
         Optional<User> userCandidate = userRepository.findByLogin(username);
         if (!userCandidate.isPresent()) {
@@ -97,14 +96,14 @@ public class ChatServiceImpl implements ChatService {
         }
         Chat chat = chatCandidate.get();
         if (chat.getModerators() != null && chat.getModerators().contains(moderatorCandidate.get())) {
-            throw new ChatException("Cannot nominate. '" + userLogin + "' is already a moderator");
+            throw new ChatException(String.format(ExceptionMessages.CANNOT_NOMINATE_TO_MODERATOR, userLogin));
         }
         if (chat.getMembers().contains(userCandidate.get()) && (chat.getOwner().equals(userCandidate.get()) ||
                 (chat.getAdmin() != null && chat.getAdmin().equals(userCandidate.get())))) {
             chat.getMembers().add(moderatorCandidate.get());
             chat.getModerators().add(moderatorCandidate.get());
         } else {
-            throw new InvalidAccessException("Insufficient rights. Cannot nominate user to moderator");
+            throw new InvalidAccessException(ExceptionMessages.INSUFFICIENT_RIGHTS_MESSAGE);
         }
         return ChatDto.fromChatToDto(chatRepository.save(chat));
     }
@@ -117,7 +116,7 @@ public class ChatServiceImpl implements ChatService {
         }
         Optional<User> userCandidate = userRepository.findByLogin(userLogin);
         if (!userCandidate.isPresent()) {
-            throw new EntityNotFoundException("Cannot downgrade '" + userLogin + "' to user. User is not found");
+            throw new EntityNotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_MESSAGE, userLogin));
         }
         Optional<User> uCandidate = userRepository.findByLogin(username);
         if (!uCandidate.isPresent()) {
@@ -125,14 +124,14 @@ public class ChatServiceImpl implements ChatService {
         }
         Chat chat = chatCandidate.get();
         if (chat.getModerators() != null && !chat.getModerators().contains(userCandidate.get())) {
-            throw new ChatException("Cannot downgrade user to user.");
+            throw new ChatException(String.format(ExceptionMessages.CANNOT_DOWNGRADE_TO_USER, userLogin));
         }
         if (chat.getModerators() != null && chat.getModerators().contains(userCandidate.get()) &&
                 chat.getMembers().contains(uCandidate.get()) && (chat.getOwner().equals(uCandidate.get()) ||
                 (chat.getAdmin() != null && chat.getAdmin().equals(uCandidate.get())))) {
             chat.getModerators().remove(userCandidate.get());
         } else {
-            throw new InvalidAccessException("Insufficient rights. Cannot downgrade moderator to user");
+            throw new InvalidAccessException(ExceptionMessages.INSUFFICIENT_RIGHTS_MESSAGE);
         }
         return ChatDto.fromChatToDto(chatRepository.save(chat));
     }
@@ -145,13 +144,13 @@ public class ChatServiceImpl implements ChatService {
         }
         Optional<User> userCandidate = userRepository.findByLogin(username);
         if (!userCandidate.isPresent()) {
-            throw new EntityNotFoundException("User with name := " + username + " is not found");
+            throw new EntityNotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_MESSAGE, username));
         }
         if ((chatCandidate.get().getAdmin() != null && chatCandidate.get().getAdmin().equals(userCandidate.get())) ||
                 chatCandidate.get().getOwner().equals(userCandidate.get())) {
             chatRepository.deleteById(chatCandidate.get().getId());
         } else {
-            throw new InvalidAccessException("Insufficient rights. Cannot remove chat");
+            throw new InvalidAccessException(ExceptionMessages.INSUFFICIENT_RIGHTS_MESSAGE);
         }
     }
 
@@ -170,7 +169,7 @@ public class ChatServiceImpl implements ChatService {
                 chat.setName(newChatName);
                 return ChatDto.fromChatToDto(chatRepository.save(chat));
             } else {
-                throw new InvalidAccessException("Insufficient rights. Cannot rename chat");
+                throw new InvalidAccessException(ExceptionMessages.INSUFFICIENT_RIGHTS_MESSAGE);
             }
         }
     }
@@ -179,7 +178,7 @@ public class ChatServiceImpl implements ChatService {
     public List<ChatDto> findAvailableChatsForUser(String username) {
         List<Chat> chats = chatRepository.findChatsByMembersContains(
                 userRepository.findByLogin(username).orElseThrow(() ->
-                        new EntityNotFoundException("User with login := " + username + " is not found"))
+                        new EntityNotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_MESSAGE, username)))
         );
         chats.sort(new ChatIdComparator());
         List<ChatDto> chatsDto = new ArrayList<>();
@@ -214,22 +213,30 @@ public class ChatServiceImpl implements ChatService {
     public ChatDto exitFromChat(String chatName, String username) throws ChatException {
         Optional<User> userCandidate = userRepository.findByLogin(username);
         if (!userCandidate.isPresent()) {
-            throw new EntityNotFoundException("User with name := " + username + " is not found");
+            throw new EntityNotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_MESSAGE, username));
         }
         Optional<Chat> chatCandidate = chatRepository.findChatByName(chatName);
         if (!chatCandidate.isPresent()) {
             throw new EntityNotFoundException(String.format(ExceptionMessages.CHAT_NOT_FOUND_MESSAGE, chatName));
         }
         if (!chatCandidate.get().getMembers().contains(userCandidate.get())) {
-            throw new ChatException("Cannot disconnect from chat with name := " + chatName + ". You are not a chat member");
+            throw new ChatException(String.format(ExceptionMessages.CANNOT_DISCONNECT_FROM_CHAT, chatName));
         } else {
             chatCandidate.get().getMembers().remove(userCandidate.get());
+        }
+        if (chatCandidate.get().getMembers().isEmpty()) {
+            chatRepository.deleteById(chatCandidate.get().getId());
+            return ChatDto.fromChatToDto(chatCandidate.get());
         }
         return ChatDto.fromChatToDto(chatRepository.save(chatCandidate.get()));
     }
 
     @Override
     public ChatDto exitFromChat(String chatName, String loginUser, Integer minute, String username) {
+        Optional<Chat> chatOptional = chatRepository.findChatByName(chatName);
+        if (!chatOptional.isPresent()) {
+
+        }
         return null;
     }
 
@@ -237,7 +244,7 @@ public class ChatServiceImpl implements ChatService {
     public Boolean banUser(String userLogin, Integer minuteCount, String username) {
         Optional<User> bannedCandidate = userRepository.findByLogin(userLogin);
         if (!bannedCandidate.isPresent()) {
-            throw new EntityNotFoundException("User with name := " + userLogin + " is not found");
+            throw new EntityNotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_MESSAGE, username));
         }
         List<Ban> bans = banRepository.findBansByUser(bannedCandidate.get());
         if (isContainsActiveBan(bans)) {
@@ -255,6 +262,15 @@ public class ChatServiceImpl implements ChatService {
         List<Chat> chats = chatRepository.findChatsByMembersContains(bannedCandidate.get());
         chats.forEach(c -> c.getMembers().remove(bannedCandidate.get()));
         return true;
+    }
+
+    @Override
+    public Long getChatCountsForUser(String username) {
+        Optional<User> userCandidate = userRepository.findByLogin(username);
+        if (!userCandidate.isPresent()) {
+            throw new EntityNotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_MESSAGE, username));
+        }
+        return chatRepository.countByMembersContains(userCandidate.get());
     }
 
     private Boolean isContainsActiveBan(List<Ban> bans) {

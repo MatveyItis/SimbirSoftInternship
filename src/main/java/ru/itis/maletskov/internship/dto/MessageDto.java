@@ -27,7 +27,9 @@ public class MessageDto {
         if (message.getSender() != null) {
             dto.setSender(message.getSender().getLogin());
         }
-        dto.setChatId(message.getChat().getId());
+        if (message.getChat() != null) {
+            dto.setChatId(message.getChat().getId());
+        }
         dto.setType(message.getType());
         dto.setDateTime(message.getDateTime());
         return dto;

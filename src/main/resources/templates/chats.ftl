@@ -92,7 +92,7 @@
                                             </div>
                                             <div class="modal-body">
                                                 <div class="container">
-
+                                                    <h4>Chat created at: ${chat.createdChatDate.format(formatter)}</h4>
                                                 </div>
                                             </div>
                                             <div class="modal-footer">
@@ -137,14 +137,17 @@
                                                                target="_blank">${message.text}</a>
                                                         </#if>
                                                     <#elseif message.type.name() == 'YBOT_FIVE_LAST_VIDEOS' && !(message.sender??)>
-                                                        ${message.text}
+                                                        ${message.text?substring(0, message.text?index_of('['))}<br>
+                                                        <#assign arr = message.text?substring(message.text?index_of('[') + 1, message.text?index_of(']'))?split(',')>
+                                                        <#list arr as v>
+                                                            <a href="${v}" target="_blank">${v}</a><br>
+                                                        </#list>
                                                     <#elseif message.type.name() == 'YBOT_RANDOM_COMMENT' && !(message.sender??)>
                                                         ${message.text?substring(0, message.text?index_of("::"))}<br>
                                                         ${message.text?substring(message.text?index_of("::") + 2)}
                                                     <#else >
                                                         ${message.text}
                                                     </#if>
-
                                                 </td>
                                                 <td style="text-align: right; width: 180px">${message.dateTime.format(formatter)}</td>
                                             </tr>

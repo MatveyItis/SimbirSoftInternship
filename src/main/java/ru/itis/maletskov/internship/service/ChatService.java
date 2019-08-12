@@ -32,4 +32,6 @@ public interface ChatService {
     ChatDto exitFromChat(String chatName, String loginUser, Integer minute, String username) throws ChatException;
 
     Boolean banUser(String userLogin, Integer minuteCount, String sender);
+
+    Long getChatCountsForUser(String username);
 }

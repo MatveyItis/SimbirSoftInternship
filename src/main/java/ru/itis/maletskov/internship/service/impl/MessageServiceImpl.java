@@ -15,6 +15,7 @@ import ru.itis.maletskov.internship.repository.MessageRepository;
 import ru.itis.maletskov.internship.repository.UserRepository;
 import ru.itis.maletskov.internship.service.BanService;
 import ru.itis.maletskov.internship.service.MessageService;
+import ru.itis.maletskov.internship.util.exception.ExceptionMessages;
 import ru.itis.maletskov.internship.util.exception.InvalidAccessException;
 
 import javax.persistence.EntityNotFoundException;
@@ -35,10 +36,10 @@ public class MessageServiceImpl implements MessageService {
     public MessageDto saveMessage(MessageForm form) throws InvalidAccessException {
         Optional<User> sender = userRepository.findByLogin(form.getSender());
         if (!sender.isPresent() && form.getSender() == null) {
-            throw new EntityNotFoundException("Sender with name := " + form.getSender() + " is not found");
+            throw new EntityNotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_MESSAGE, form.getSender()));
         }
         if (sender.isPresent() && banService.isUserBannedAtTheTime(sender.get().getLogin())) {
-            throw new InvalidAccessException("Cannot send message. User banned at the time");
+            throw new InvalidAccessException(String.format(ExceptionMessages.USER_IS_BANNED_MESSAGE, sender.get().getLogin()));
         }
         Message message = MessageForm.fromFormToMessage(form);
         message.setSender(sender.orElse(null));
@@ -50,18 +51,18 @@ public class MessageServiceImpl implements MessageService {
     public void deleteMessageById(String username, Long id) throws InvalidAccessException {
         Optional<User> user = userRepository.findByLogin(username);
         if (!user.isPresent()) {
-            throw new EntityNotFoundException("Sender with name := " + username + " is not found");
+            throw new EntityNotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_MESSAGE, username));
         }
         Optional<Message> messageOptional = messageRepository.findById(id);
         if (!messageOptional.isPresent()) {
-            throw new EntityNotFoundException("Message with id := " + username + " is not found");
+            throw new EntityNotFoundException(String.format(ExceptionMessages.MESSAGE_NOT_FOUND, id));
         }
         Chat chat = messageOptional.get().getChat();
         if ((chat.getAdmin() != null && chat.getAdmin().equals(user.get())) || chat.getOwner().equals(user.get()) ||
                 (chat.getModerators() != null && chat.getModerators().contains(user.get()))) {
             messageRepository.deleteById(id);
         } else {
-            throw new InvalidAccessException("Insufficient rights");
+            throw new InvalidAccessException(ExceptionMessages.INSUFFICIENT_RIGHTS_MESSAGE);
         }
     }
 
@@ -86,10 +87,7 @@ public class MessageServiceImpl implements MessageService {
             message.setType(form.getType());
             message.setDateTime(form.getDateTime());
             Optional<Chat> chat = chatRepository.findById(form.getChatId());
-            if (!chat.isPresent()) {
-                throw new EntityNotFoundException("Chat with id := " + form.getChatId() + " is not found");
-            }
-            message.setChat(chat.get());
+            message.setChat(chat.orElse(null));
             message.setText(form.getUtilMessage());
             return MessageDto.fromMessageToDto(messageRepository.save(message));
         } else {

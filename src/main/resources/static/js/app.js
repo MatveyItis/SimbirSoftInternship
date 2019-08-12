@@ -13,7 +13,21 @@ function connect() {
             subscribeToChat(Number(chatsId[i].value));
         }
     });
-
+    let chatCountInterval = setInterval(function () {
+        let chatsId = document.getElementsByName("chatId");
+        $.ajax({
+            url: "/chat_count",
+            dataType: "json",
+            success: function (chatCount) {
+                if (chatCount !== chatsId.length) {
+                    location.reload();
+                }
+            },
+            error: function (xhr, status, error) {
+                clearInterval(chatCountInterval);
+            }
+        });
+    }, 5000);
 }
 
 function subscribeToChat(chatId) {
@@ -123,7 +137,8 @@ function renderResponse(response, chatDest) {
 
     } else if (type === 'COMMAND') {
         renderCommandAction(response);
-        if (response.utilMessage !== null && response.utilMessage !== undefined) {
+        if ((response.utilMessage !== null && response.utilMessage !== undefined) &&
+            (response.responseData !== null && response.responseData !== undefined && response.responseData.commandType !== 'HELP')) {
             $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
                 '<th scope="row" style="width: 80px; color: forestgreen">Server: </th>' +
                 '<td colspan="2">' + response.utilMessage + '</td>' +
@@ -136,7 +151,8 @@ function renderResponse(response, chatDest) {
         renderCommandAction(response);
         let yBotResponse = response.utilMessage;
         if (yBotResponse !== null && yBotResponse !== undefined &&
-            (type !== 'YBOT_RANDOM_COMMENT' && type !== 'YBOT_FIVE_LAST_VIDEOS')) {
+            type !== 'YBOT_RANDOM_COMMENT' && type !== 'YBOT_FIVE_LAST_VIDEOS' &&
+            response.responseData !== null && response.responseData.commandType !== 'YBOT_HELP') {
             let videoHref = yBotResponse;
             let otherInfo = ' ';
             if (yBotResponse.includes(" v=") || yBotResponse.includes(" l=")) {
@@ -197,6 +213,12 @@ function renderCommandAction(response) {
             break;
         case 'YBOT_RANDOM_COMMENT':
             renderCommentRandom(response);
+            break;
+        case 'HELP':
+            renderChatBotHelp(response);
+            break;
+        case 'YBOT_HELP':
+            renderYBotHelp(response);
             break;
         default:
             console.log('Что-то пошло не так')

@@ -9,6 +9,7 @@ import ru.itis.maletskov.internship.model.Role;
 import ru.itis.maletskov.internship.model.User;
 import ru.itis.maletskov.internship.repository.UserRepository;
 import ru.itis.maletskov.internship.service.UserService;
+import ru.itis.maletskov.internship.util.exception.ExceptionMessages;
 import ru.itis.maletskov.internship.util.exception.InvalidAccessException;
 
 import javax.persistence.EntityNotFoundException;
@@ -44,10 +45,10 @@ public class UserServiceImpl implements UserService {
     public UserDto renameUser(String username, String newUsername) throws InvalidAccessException {
         Optional<User> userCandidate = userRepository.findByLogin(username);
         if (!userCandidate.isPresent()) {
-            throw new EntityNotFoundException("User with username " + username + " is not found");
+            throw new EntityNotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_MESSAGE, username));
         }
         if (userRepository.existsUserByLogin(newUsername)) {
-            throw new InvalidAccessException("Cannot rename username. User with name '" + newUsername + "' already exists");
+            throw new InvalidAccessException(String.format(ExceptionMessages.USERNAME_ALREADY_EXISTS_MESSAGE, newUsername));
         }
         userCandidate.get().setLogin(newUsername);
         return UserDto.fromUserToDto(userRepository.save(userCandidate.get()));
@@ -57,7 +58,7 @@ public class UserServiceImpl implements UserService {
     public UserDto getUserById(Long id) {
         Optional<User> userCandidate = userRepository.findById(id);
         if (!userCandidate.isPresent()) {
-            throw new EntityNotFoundException("User with id := " + id + " is not found");
+            throw new EntityNotFoundException(String.format(ExceptionMessages.USER_WITH_ID_NOT_FOUND_MESSAGE, id));
         }
         return UserDto.fromUserToDto(userCandidate.get());
     }

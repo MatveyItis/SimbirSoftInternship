@@ -1,4 +1,4 @@
-package ru.itis.maletskov.internship.controller;
+package ru.itis.maletskov.internship.controller.exception;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;

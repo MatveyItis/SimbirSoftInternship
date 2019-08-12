@@ -27,6 +27,8 @@ function renderDisconnectRoom(response) {
     let chatsId = document.getElementsByName('chatId');
     if (chatsId.length === 0) {
         createStartTemplate();
+    } else {
+        $("#chats").children('#chat-' + Number(chatsId[0].value) + "-list").click();
     }
 }
 
@@ -58,6 +60,11 @@ function renderRemoveRoom(response) {
     let chatId = response.responseData.chatId;
     unsubscribeFromChat(chatId);
     $("#chats").children("#chat-" + chatId + "-list")[0].remove();
+    let chatArray = document.getElementsByName("chatId");
+    if (chatArray.length !== 0) {
+        $("#chats").children('#chat-' + Number(chatArray[0].value) + "-list").click();
+    }
+    $('#chat-' + chatId).children().remove();
 }
 
 function renderRenameRoom(response) {
@@ -145,5 +152,30 @@ function renderCommentRandom(response) {
         '<td style="text-align: right; width: 180px">' + dateTime + '</td>' +
         '</tr>'
     );
+}
 
+function renderChatBotHelp(response) {
+    let chats = document.getElementsByClassName("tab-pane fade");
+    let dateTime = getDateTime(response.message.dateTime);
+    let chatId = response.message.chatId;
+    let chatDest = getChatElementByChatId(chats, chatId);
+    $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
+        '<th scope="row" style="width: 80px; color: forestgreen">Server:</th>' +
+        '<td colspan="2">' + helpInfo() + '</td>' +
+        '<td style="text-align: right; width: 180px">' + dateTime + '</td>' +
+        '</tr>'
+    );
+}
+
+function renderYBotHelp(response) {
+    let chats = document.getElementsByClassName("tab-pane fade");
+    let dateTime = getDateTime(response.message.dateTime);
+    let chatId = response.message.chatId;
+    let chatDest = getChatElementByChatId(chats, chatId);
+    $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
+        '<th scope="row" style="width: 80px; color: dodgerblue">yBot:</th>' +
+        '<td colspan="2">' + helpYBotInfo() + '</td>' +
+        '<td style="text-align: right; width: 180px">' + dateTime + '</td>' +
+        '</tr>'
+    );
 }

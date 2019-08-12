@@ -12,10 +12,7 @@ import ru.itis.maletskov.internship.service.MessageParserService;
 import ru.itis.maletskov.internship.service.UserService;
 import ru.itis.maletskov.internship.service.YouTubeService;
 import ru.itis.maletskov.internship.util.BotHelper;
-import ru.itis.maletskov.internship.util.exception.ChatException;
-import ru.itis.maletskov.internship.util.exception.CommandParsingException;
-import ru.itis.maletskov.internship.util.exception.InvalidAccessException;
-import ru.itis.maletskov.internship.util.exception.YBotException;
+import ru.itis.maletskov.internship.util.exception.*;
 
 import java.io.IOException;
 import java.util.List;
@@ -175,7 +172,7 @@ public class MessageParserServiceImpl implements MessageParserService {
             responseData.setBannedMinuteCount(minuteCount);
             response.setResponseData(responseData);
         } else {
-            throw new CommandParsingException("Invalid command. Required attributes ' -l ' and ' -m ' is empty");
+            throw new CommandParsingException(ExceptionMessages.INVALID_COMMAND_MESSAGE);
         }
     }
 
@@ -199,7 +196,7 @@ public class MessageParserServiceImpl implements MessageParserService {
         boolean nominated = command.contains(" -n") || command.contains(" -n ");
         boolean downgraded = command.contains(" -d") || command.contains(" -d ");
         if ((nominated && downgraded) || (!nominated && !downgraded)) {
-            throw new CommandParsingException("Parse command error := '" + command + "'");
+            throw new CommandParsingException(ExceptionMessages.INVALID_COMMAND_MESSAGE);
         }
         if (nominated) {
             String userLogin = command.substring(17, command.indexOf(" -n"));
@@ -219,7 +216,7 @@ public class MessageParserServiceImpl implements MessageParserService {
         boolean isContainsChannelName = command.contains(" -k ");
         boolean isContainsVideoName = command.contains(" -w ");
         if (!isContainsChannelName || !isContainsVideoName) {
-            throw new CommandParsingException("Missing required attributes ' -k ' {channel name} and ' -w ' {video name}");
+            throw new CommandParsingException(ExceptionMessages.INVALID_COMMAND_MESSAGE);
         }
         boolean isContainsViewMarker = command.contains(" -v") || command.contains(" -v ");
         boolean isContainsLikeMarker = command.contains(" -l") || command.contains(" -l ");
@@ -277,12 +274,19 @@ public class MessageParserServiceImpl implements MessageParserService {
         form.setType(MessageType.YBOT_COMMAND);
         response.setMessage(MessageDto.fromFormToDto(form));
         response.setUtilMessage(BotHelper.getYBotInfo());
+        ResponseDataDto dataDto = new ResponseDataDto();
+        dataDto.setCommandType(CommandType.YBOT_HELP);
+        response.setUtilMessage(BotHelper.getYBotInfo());
+        response.setResponseData(dataDto);
     }
 
     private void chatBotHelp(ServerResponseDto response, MessageForm form) {
         form.setType(MessageType.COMMAND);
         response.setMessage(MessageDto.fromFormToDto(form));
+        ResponseDataDto dataDto = new ResponseDataDto();
+        dataDto.setCommandType(CommandType.HELP);
         response.setUtilMessage(BotHelper.getChatBotInfo());
+        response.setResponseData(dataDto);
     }
 
     private void handleMessage(ServerResponseDto response, MessageForm form) {
