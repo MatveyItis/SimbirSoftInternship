@@ -50,7 +50,7 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public ChatDto addUserToChat(String chatName, String username, String otherUsername) throws InvalidAccessException, ChatException {
-        Optional<Chat> chatCandidate = chatRepository.findChatByName(chatName);
+        Optional<Chat> chatCandidate = chatRepository.findByName(chatName);
         if (!chatCandidate.isPresent()) {
             throw new EntityNotFoundException(String.format(ExceptionMessages.CHAT_NOT_FOUND_MESSAGE, chatName));
         }
@@ -138,7 +138,7 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public void deleteChat(String chatName, String username) throws InvalidAccessException {
-        Optional<Chat> chatCandidate = chatRepository.findChatByName(chatName);
+        Optional<Chat> chatCandidate = chatRepository.findByName(chatName);
         if (!chatCandidate.isPresent()) {
             throw new EntityNotFoundException(String.format(ExceptionMessages.CHAT_NOT_FOUND_MESSAGE, chatName));
         }
@@ -197,7 +197,7 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public ChatDto findChatByName(String chatName) {
-        Optional<Chat> chatCandidate = chatRepository.findChatByName(chatName);
+        Optional<Chat> chatCandidate = chatRepository.findByName(chatName);
         if (!chatCandidate.isPresent()) {
             throw new EntityNotFoundException(String.format(ExceptionMessages.CHAT_NOT_FOUND_MESSAGE, chatName));
         }
@@ -210,18 +210,21 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public ChatDto exitFromChat(String chatName, String username) throws ChatException {
+    public ChatDto exitFromChat(String chatName, String username) throws ChatException, InvalidAccessException {
         Optional<User> userCandidate = userRepository.findByLogin(username);
         if (!userCandidate.isPresent()) {
             throw new EntityNotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_MESSAGE, username));
         }
-        Optional<Chat> chatCandidate = chatRepository.findChatByName(chatName);
+        Optional<Chat> chatCandidate = chatRepository.findByName(chatName);
         if (!chatCandidate.isPresent()) {
             throw new EntityNotFoundException(String.format(ExceptionMessages.CHAT_NOT_FOUND_MESSAGE, chatName));
         }
         if (!chatCandidate.get().getMembers().contains(userCandidate.get())) {
             throw new ChatException(String.format(ExceptionMessages.CANNOT_DISCONNECT_FROM_CHAT, chatName));
         } else {
+            if ((chatCandidate.get().getAdmin() != null && chatCandidate.get().getAdmin().equals(userCandidate.get())) || chatCandidate.get().getOwner().equals(userCandidate.get())) {
+                throw new InvalidAccessException(String.format(ExceptionMessages.CANNOT_DISCONNECT_FROM_CHAT_ADMIN_MESSAGE, chatCandidate.get().getName()));
+            }
             chatCandidate.get().getMembers().remove(userCandidate.get());
         }
         if (chatCandidate.get().getMembers().isEmpty()) {
@@ -233,7 +236,7 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public ChatDto exitFromChat(String chatName, String loginUser, Integer minute, String username) {
-        Optional<Chat> chatOptional = chatRepository.findChatByName(chatName);
+        Optional<Chat> chatOptional = chatRepository.findByName(chatName);
         if (!chatOptional.isPresent()) {
 
         }

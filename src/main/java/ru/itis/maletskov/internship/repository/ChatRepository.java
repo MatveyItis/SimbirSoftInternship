@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface ChatRepository extends JpaRepository<Chat, Long> {
-    Optional<Chat> findChatByName(String name);
+    Optional<Chat> findByName(String name);
 
     Boolean existsChatByName(String name);
 

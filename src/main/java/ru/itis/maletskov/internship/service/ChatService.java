@@ -27,7 +27,7 @@ public interface ChatService {
 
     Boolean existsChatById(Long id);
 
-    ChatDto exitFromChat(String chatName, String username) throws ChatException;
+    ChatDto exitFromChat(String chatName, String username) throws ChatException, InvalidAccessException;
 
     ChatDto exitFromChat(String chatName, String loginUser, Integer minute, String username) throws ChatException;
 

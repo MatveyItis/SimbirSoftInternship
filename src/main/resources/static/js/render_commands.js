@@ -87,7 +87,7 @@ function renderUserRename(response) {
             $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
                 '<th scope="row" style="width: 80px; color: forestgreen">Server: </th>' +
                 '<td colspan="2">' + response.utilMessage + '</td>' +
-                '<td style="text-align: right; width: 180px">' + dateTime + '</td>' +
+                '<td style="text-align: right; width: 180px"><small>' + dateTime + '</small></td>' +
                 '</tr>'
             );
         }
@@ -117,7 +117,7 @@ function renderFiveLastVideos(response) {
     $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
         '<th scope="row" style="width: 80px; color: dodgerblue">yBot:</th>' +
         '<td colspan="2">' + channelName + '</td>' +
-        '<td style="text-align: right; width: 180px">' + dateTime + '</td>' +
+        '<td style="text-align: right; width: 180px"><small>' + dateTime + '</small></td>' +
         '</tr>'
     );
     let hrefs = '';
@@ -127,7 +127,7 @@ function renderFiveLastVideos(response) {
     $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
         '<th scope="row" style="width: 80px; color: dodgerblue">yBot:</th>' +
         '<td colspan="2">' + hrefs + '</td>' +
-        '<td style="text-align: right; width: 180px">' + dateTime + '</td>' +
+        '<td style="text-align: right; width: 180px"><small>' + dateTime + '</small></td>' +
         '</tr>'
     );
 }
@@ -143,13 +143,13 @@ function renderCommentRandom(response) {
     $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
         '<th scope="row" style="width: 80px; color: dodgerblue">yBot:</th>' +
         '<td colspan="2">' + commentAuthorName + '</td>' +
-        '<td style="text-align: right; width: 180px">' + dateTime + '</td>' +
+        '<td style="text-align: right; width: 180px"><small>' + dateTime + '</small></td>' +
         '</tr>'
     );
     $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
         '<th scope="row" style="width: 80px; color: dodgerblue">yBot:</th>' +
         '<td colspan="2">' + commentName + '</td>' +
-        '<td style="text-align: right; width: 180px">' + dateTime + '</td>' +
+        '<td style="text-align: right; width: 180px"><small>' + dateTime + '</small></td>' +
         '</tr>'
     );
 }
@@ -162,7 +162,7 @@ function renderChatBotHelp(response) {
     $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
         '<th scope="row" style="width: 80px; color: forestgreen">Server:</th>' +
         '<td colspan="2">' + helpInfo() + '</td>' +
-        '<td style="text-align: right; width: 180px">' + dateTime + '</td>' +
+        '<td style="text-align: right; width: 180px"><small>' + dateTime + '</small></td>' +
         '</tr>'
     );
 }
@@ -175,7 +175,7 @@ function renderYBotHelp(response) {
     $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
         '<th scope="row" style="width: 80px; color: dodgerblue">yBot:</th>' +
         '<td colspan="2">' + helpYBotInfo() + '</td>' +
-        '<td style="text-align: right; width: 180px">' + dateTime + '</td>' +
+        '<td style="text-align: right; width: 180px"><small>' + dateTime + '</small></td>' +
         '</tr>'
     );
 }

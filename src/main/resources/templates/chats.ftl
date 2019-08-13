@@ -149,7 +149,12 @@
                                                         ${message.text}
                                                     </#if>
                                                 </td>
-                                                <td style="text-align: right; width: 180px">${message.dateTime.format(formatter)}</td>
+                                                <td style="text-align: right; width: 180px">
+                                                    <small>${message.dateTime.format(formatter)}</small>
+                                                    <button class="btn-xs btn-light" type="button" id="message" name="message"
+                                                            value="${message.id}">&times;
+                                                    </button>
+                                                </td>
                                             </tr>
                                         </#list>
                                     </#if>

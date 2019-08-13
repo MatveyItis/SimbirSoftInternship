@@ -123,7 +123,7 @@ public class MessageParserServiceImpl implements MessageParserService {
         response.setUtilMessage("Chat has been removed:(");
     }
 
-    private void disconnectRoom(String command, ServerResponseDto response, MessageForm form) throws ChatException {
+    private void disconnectRoom(String command, ServerResponseDto response, MessageForm form) throws ChatException, InvalidAccessException {
         ChatDto chatDto = chatService.findChatById(form.getChatId());
         boolean isContainsUser = command.contains(" -l ");
         boolean isContainsMinute = command.contains(" -m ");

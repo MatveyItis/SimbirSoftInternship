@@ -120,7 +120,7 @@ function handleResponse(response) {
         $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
             '<th scope="row" style="width: 80px">' + response.message.sender + '</th>' +
             '<td colspan="2">' + response.message.text + '</td>' +
-            '<td style="text-align: right; width: 180px">' + dateTime + '</td>' +
+            '<td style="text-align: right; width: 180px"><small>' + dateTime + '</small></td>' +
             '</tr>'
         );
     }
@@ -142,7 +142,7 @@ function renderResponse(response, chatDest) {
             $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
                 '<th scope="row" style="width: 80px; color: forestgreen">Server: </th>' +
                 '<td colspan="2">' + response.utilMessage + '</td>' +
-                '<td style="text-align: right; width: 180px">' + dateTime + '</td>' +
+                '<td style="text-align: right; width: 180px"><small>' + dateTime + '</small></td>' +
                 '</tr>'
             );
         }
@@ -162,7 +162,7 @@ function renderResponse(response, chatDest) {
             $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
                 '<th scope="row" style="width: 80px; color: cornflowerblue">yBot: </th>' +
                 '<td colspan="2"><a href="' + response.utilMessage + '" target="_blank">' + videoHref + '</a> ' + otherInfo + '</td>' +
-                '<td style="text-align: right; width: 180px">' + dateTime + '</td>' +
+                '<td style="text-align: right; width: 180px"><small>' + dateTime + '</small></td>' +
                 '</tr>'
             );
         }
@@ -170,7 +170,7 @@ function renderResponse(response, chatDest) {
         $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
             '<th scope="row" style="width: 80px;"><strong style="color: red">Server: </strong></th>' +
             '<td colspan="2">' + response.utilMessage + '</td>' +
-            '<td style="text-align: right; width: 180px">' + dateTime + '</td>' +
+            '<td style="text-align: right; width: 180px"><small>' + dateTime + '</small></td>' +
             '</tr>'
         );
     }
@@ -236,5 +236,25 @@ $(function () {
 
     $('#send').click(function () {
         sendMessage();
+    });
+
+    $('button[name=message]').click(function (e) {
+        let id = Number(e.target.value);
+        $.ajax({
+            url: '/delete_message',
+            dataType: 'json',
+            type: 'POST',
+            data: {
+                id: id
+            },
+            success: function (result) {
+                if (result === true) {
+                    $('button[name=message], button[value=' + id + ']').closest('tr')[0].remove();
+                }
+            },
+            error: function (xhr, status, error) {
+                alert(xhr + '<br>' + status + '<br>' + error);
+            }
+        });
     })
 });

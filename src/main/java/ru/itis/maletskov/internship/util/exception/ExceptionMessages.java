@@ -15,6 +15,7 @@ public final class ExceptionMessages {
     public static final String INVALID_COMMAND_MESSAGE = "Invalid command. Use '//help' or '//yBot help' for more information";
     public static final String MESSAGE_NOT_FOUND = "Message with id := %s is not found";
     public static final String USERNAME_ALREADY_EXISTS_MESSAGE = "User with name '%s' already exists";
+    public static final String CANNOT_DISCONNECT_FROM_CHAT_ADMIN_MESSAGE = "Cannot disconnect from chat '%s'. You are admin or owner.";
 
     private ExceptionMessages() {
     }

@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @Setter
 @ToString
 public class MessageDto {
+    private Long id;
     private String text;
     private String sender;
     private Long chatId;
@@ -23,6 +24,9 @@ public class MessageDto {
 
     public static MessageDto fromMessageToDto(Message message) {
         MessageDto dto = new MessageDto();
+        if (message.getId() != null) {
+            dto.setId(message.getId());
+        }
         dto.setText(message.getText());
         if (message.getSender() != null) {
             dto.setSender(message.getSender().getLogin());
