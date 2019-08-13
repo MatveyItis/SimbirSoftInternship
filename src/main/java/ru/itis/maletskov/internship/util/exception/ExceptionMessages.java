@@ -16,6 +16,8 @@ public final class ExceptionMessages {
     public static final String MESSAGE_NOT_FOUND = "Message with id := %s is not found";
     public static final String USERNAME_ALREADY_EXISTS_MESSAGE = "User with name '%s' already exists";
     public static final String CANNOT_DISCONNECT_FROM_CHAT_ADMIN_MESSAGE = "Cannot disconnect from chat '%s'. You are admin or owner.";
+    public static final String CANNOT_DISCONNECT_OWNER_FROM_CHAT_MESSAGE = "Cannot disconnect owner from chat '%s'. Insufficient rights";
+    public static final String USER_IS_NOT_IN_THE_CHAT_MESSAGE = "User '%s' is not in the chat";
 
     private ExceptionMessages() {
     }

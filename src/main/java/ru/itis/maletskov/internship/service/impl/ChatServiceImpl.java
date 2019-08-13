@@ -222,8 +222,11 @@ public class ChatServiceImpl implements ChatService {
         if (!chatCandidate.get().getMembers().contains(userCandidate.get())) {
             throw new ChatException(String.format(ExceptionMessages.CANNOT_DISCONNECT_FROM_CHAT, chatName));
         } else {
-            if ((chatCandidate.get().getAdmin() != null && chatCandidate.get().getAdmin().equals(userCandidate.get())) || chatCandidate.get().getOwner().equals(userCandidate.get())) {
-                throw new InvalidAccessException(String.format(ExceptionMessages.CANNOT_DISCONNECT_FROM_CHAT_ADMIN_MESSAGE, chatCandidate.get().getName()));
+            if ((chatCandidate.get().getAdmin() != null && chatCandidate.get().getAdmin().equals(userCandidate.get())) ||
+                    chatCandidate.get().getOwner().equals(userCandidate.get())) {
+                throw new InvalidAccessException(
+                        String.format(ExceptionMessages.CANNOT_DISCONNECT_FROM_CHAT_ADMIN_MESSAGE, chatCandidate.get().getName())
+                );
             }
             chatCandidate.get().getMembers().remove(userCandidate.get());
         }
@@ -235,12 +238,38 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public ChatDto exitFromChat(String chatName, String loginUser, Integer minute, String username) {
-        Optional<Chat> chatOptional = chatRepository.findByName(chatName);
-        if (!chatOptional.isPresent()) {
-
+    public ChatDto exitFromChat(String chatName, String loginUser, Integer minute, String username) throws InvalidAccessException, ChatException {
+        Optional<User> userCandidate = userRepository.findByLogin(username);
+        if (!userCandidate.isPresent()) {
+            throw new EntityNotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_MESSAGE, username));
         }
-        return null;
+        Optional<User> disconnectedUserCandidate = userRepository.findByLogin(loginUser);
+        if (!disconnectedUserCandidate.isPresent()) {
+            throw new EntityNotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_MESSAGE, username));
+        }
+        Optional<Chat> chatCandidate = chatRepository.findByName(chatName);
+        if (!chatCandidate.isPresent()) {
+            throw new EntityNotFoundException(String.format(ExceptionMessages.CHAT_NOT_FOUND_MESSAGE, chatName));
+        }
+        if (!chatCandidate.get().getMembers().contains(disconnectedUserCandidate.get())) {
+            throw new ChatException(String.format(ExceptionMessages.USER_IS_NOT_IN_THE_CHAT_MESSAGE, disconnectedUserCandidate.get().getLogin()));
+        }
+        Chat chat = chatCandidate.get();
+        User user = userCandidate.get();
+        User disconnectedUser = disconnectedUserCandidate.get();
+        if (chat.getOwner().equals(user) && chat.getOwner().equals(disconnectedUser)) {
+            throw new InvalidAccessException(String.format(ExceptionMessages.CANNOT_DISCONNECT_FROM_CHAT_ADMIN_MESSAGE, chat.getName()));
+        } else if (chat.getAdmin() != null && chat.getAdmin().equals(user) && chat.getOwner().equals(disconnectedUser)) {
+            throw new InvalidAccessException(String.format(ExceptionMessages.CANNOT_DISCONNECT_OWNER_FROM_CHAT_MESSAGE, chat.getName()));
+        } else if (chat.getModerators() != null && chat.getModerators().contains(user) && chat.getModerators().contains(disconnectedUser)) {
+            throw new InvalidAccessException(ExceptionMessages.INSUFFICIENT_RIGHTS_MESSAGE);
+        } else if (((chat.getModerators() != null) && !chat.getModerators().contains(user)) &&
+                !chat.getOwner().equals(user) && (chat.getAdmin() != null && !chat.getAdmin().equals(user))) {
+            throw new InvalidAccessException(ExceptionMessages.INSUFFICIENT_RIGHTS_MESSAGE);
+        } else {
+            chat.getMembers().remove(disconnectedUser);
+        }
+        return ChatDto.fromChatToDto(chatRepository.save(chat));
     }
 
     @Override

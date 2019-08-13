@@ -249,11 +249,11 @@ $(function () {
             },
             success: function (result) {
                 if (result === true) {
-                    $('button[name=message], button[value=' + id + ']').closest('tr')[0].remove();
+                    $('#message-' + id).remove();
                 }
             },
             error: function (xhr, status, error) {
-                alert(xhr + '<br>' + status + '<br>' + error);
+                alert('Cannot delete message');
             }
         });
     })

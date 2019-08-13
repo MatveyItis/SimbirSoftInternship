@@ -21,14 +21,17 @@ function renderConnectRoom(response) {
 
 function renderDisconnectRoom(response) {
     let chatId = response.responseData.chatId;
-    unsubscribeFromChat(chatId);
-    $("#chats").children("#chat-" + chatId + "-list")[0].remove();
-    $('#chat-messages').children('#chat-' + chatId)[0].remove();
-    let chatsId = document.getElementsByName('chatId');
-    if (chatsId.length === 0) {
-        createStartTemplate();
-    } else {
-        $("#chats").children('#chat-' + Number(chatsId[0].value) + "-list").click();
+    let disconnectedUserLogin = response.responseData.disconnectedUserLogin;
+    if (disconnectedUserLogin === $('#sender').val()) {
+        unsubscribeFromChat(chatId);
+        $("#chats").children("#chat-" + chatId + "-list")[0].remove();
+        $('#chat-messages').children('#chat-' + chatId)[0].remove();
+        let chatsId = document.getElementsByName('chatId');
+        if (chatsId.length === 0) {
+            createStartTemplate();
+        } else {
+            $("#chats").children('#chat-' + Number(chatsId[0].value) + "-list").click();
+        }
     }
 }
 

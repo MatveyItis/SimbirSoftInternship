@@ -111,7 +111,7 @@
                                     <tbody id="greetings">
                                     <#if chat.messages??>
                                         <#list chat.messages as message>
-                                            <tr>
+                                            <tr id="message-${message.id}">
                                                 <th scope="row" style="width: 80px">
                                                     <#if message.sender??>
                                                         ${message.sender}
@@ -151,9 +151,12 @@
                                                 </td>
                                                 <td style="text-align: right; width: 180px">
                                                     <small>${message.dateTime.format(formatter)}</small>
-                                                    <button class="btn-xs btn-light" type="button" id="message" name="message"
-                                                            value="${message.id}">&times;
-                                                    </button>
+                                                    <#if chat.owner.login == username || (chat.admin?? && chat.admin.login == username)>
+                                                        <button class="btn-xs btn-light" type="button"
+                                                                name="message"
+                                                                value="${message.id}">&times;
+                                                        </button>
+                                                    </#if>
                                                 </td>
                                             </tr>
                                         </#list>
