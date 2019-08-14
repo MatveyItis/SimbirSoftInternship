@@ -10,11 +10,11 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.hamcrest.Matchers.containsString;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -25,16 +25,8 @@ public class LoginTest {
     private MockMvc mockMvc;
 
     @Test
-    public void homePageTest() throws Exception {
-        this.mockMvc.perform(get("/home"))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(content().string(containsString("Type name of channel and name of video..")));
-    }
-
-    @Test
     public void accessDeniedTest() throws Exception {
-        this.mockMvc.perform(get("/chat"))
+        this.mockMvc.perform(get("/chats"))
                 .andDo(print())
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("http://localhost/login"));
@@ -46,7 +38,7 @@ public class LoginTest {
     public void correctLoginTest() throws Exception {
         this.mockMvc.perform(formLogin().user("login", "danis").password("123456"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/chat"));
+                .andExpect(redirectedUrl("/chats"));
     }
 
     @Test

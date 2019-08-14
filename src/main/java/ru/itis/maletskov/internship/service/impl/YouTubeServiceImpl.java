@@ -125,9 +125,10 @@ public class YouTubeServiceImpl implements YouTubeService {
         sb.append("maxResults=").append("1").append("&");
         sb.append("type=").append("video");
         String channelId = getChannelId(channelName);
-        if (!channelId.isEmpty()) {
-            sb.append("channelId=").append(channelId);
+        if (channelId.isEmpty()) {
+            throw new YBotException("Channel is not found");
         }
+        sb.append("channelId=").append(channelId);
         HttpGet request = new HttpGet(sb.toString());
         HttpResponse response = httpClient.execute(request);
         HttpEntity entity = response.getEntity();

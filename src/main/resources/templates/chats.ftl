@@ -92,7 +92,8 @@
                                             </div>
                                             <div class="modal-body">
                                                 <div class="container">
-                                                    <h4>Chat created at: ${chat.createdChatDate.format(formatter)}</h4>
+                                                    <h5>Chat created at: ${chat.createdChatDate.format(formatter)}.</h5><br>
+                                                    <p>It is ${chat.type.name()?lower_case} chat.</p>
                                                 </div>
                                             </div>
                                             <div class="modal-footer">

@@ -203,12 +203,22 @@ public class MessageParserServiceImpl implements MessageParserService {
             chatService.nominateToModerator(form.getChatId(), userLogin, form.getSender());
             response.getMessage().setType(MessageType.COMMAND);
             response.setUtilMessage("User with name " + userLogin + " has been nominated to moderator");
+
+            ResponseDataDto dataDto = new ResponseDataDto();
+            dataDto.setCommandType(CommandType.USER_MODERATOR);
+            dataDto.setNominatedModeratorLogin(userLogin);
+            response.setResponseData(dataDto);
         }
         if (downgraded) {
             String userLogin = command.substring(17, command.indexOf(" -d"));
             chatService.downgradeToUser(form.getChatId(), userLogin, form.getSender());
             response.getMessage().setType(MessageType.COMMAND);
             response.setUtilMessage("User with name " + userLogin + " has been downgraded to user");
+
+            ResponseDataDto dataDto = new ResponseDataDto();
+            dataDto.setCommandType(CommandType.USER_MODERATOR);
+            dataDto.setDowngradedModeratorLogin(userLogin);
+            response.setResponseData(dataDto);
         }
     }
 

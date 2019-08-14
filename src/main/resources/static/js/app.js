@@ -56,13 +56,6 @@ function unsubscribeFromChat(chatId) {
     }
 }
 
-function unsubscribeFromAllChats() {
-    let chatsId = document.getElementsByName('chatId');
-    for (let i = 0; i < chatsId.length; i++) {
-        unsubscribeFromChat(Number(chatsId[i].value));
-    }
-}
-
 function getCurrentChatId() {
     let activeChatLink = document.getElementsByClassName("list-group-item list-group-item-action active")[0];
     if (activeChatLink !== undefined) {
@@ -136,7 +129,9 @@ function renderResponse(response, chatDest) {
     if (type === 'MESSAGE') {
 
     } else if (type === 'COMMAND') {
-        renderCommandAction(response);
+        if (response.responseData !== null && response.responseData !== undefined && response.responseData.commandType !== 'USER_MODERATOR') {
+            renderCommandAction(response);
+        }
         if ((response.utilMessage !== null && response.utilMessage !== undefined) &&
             (response.responseData !== null && response.responseData !== undefined && response.responseData.commandType !== 'HELP')) {
             $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
@@ -150,9 +145,9 @@ function renderResponse(response, chatDest) {
         type === 'YBOT_FIVE_LAST_VIDEOS' || type === 'YBOT_RANDOM_COMMENT') {
         renderCommandAction(response);
         let yBotResponse = response.utilMessage;
-        if (yBotResponse !== null && yBotResponse !== undefined &&
+        if (type === 'YBOT_FIND' || yBotResponse !== null && yBotResponse !== undefined &&
             type !== 'YBOT_RANDOM_COMMENT' && type !== 'YBOT_FIVE_LAST_VIDEOS' &&
-            response.responseData !== null && response.responseData.commandType !== 'YBOT_HELP') {
+            response.responseData !== null && response.responseData !== undefined && response.responseData.commandType !== 'YBOT_HELP') {
             let videoHref = yBotResponse;
             let otherInfo = ' ';
             if (yBotResponse.includes(" v=") || yBotResponse.includes(" l=")) {

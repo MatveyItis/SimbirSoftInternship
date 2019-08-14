@@ -107,7 +107,16 @@ function renderUserBan(response) {
 }
 
 function renderUserModerator(response) {
-
+    let chatId = response.message.chatId;
+    let dateTime = getDateTime(response.message.dateTime);
+    let chats = document.getElementsByClassName("tab-pane fade");
+    let chatDest = getChatElementByChatId(chats, chatId);
+    $(chatDest).children('div').children('table').children('tbody').append('<tr>' +
+        '<th scope="row" style="width: 80px; color: forestgreen">Server:</th>' +
+        '<td colspan="2">' +  + '</td>' +
+        '<td style="text-align: right; width: 180px"><small>' + dateTime + '</small></td>' +
+        '</tr>'
+    );
 }
 
 function renderFiveLastVideos(response) {
