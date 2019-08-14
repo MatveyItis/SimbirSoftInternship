@@ -3,6 +3,7 @@ package ru.itis.maletskov.internship.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.itis.maletskov.internship.dto.UserDto;
 import ru.itis.maletskov.internship.form.UserForm;
 import ru.itis.maletskov.internship.model.Role;
@@ -20,6 +21,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;

@@ -2,6 +2,7 @@ package ru.itis.maletskov.internship.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.itis.maletskov.internship.model.Ban;
 import ru.itis.maletskov.internship.model.User;
 import ru.itis.maletskov.internship.repository.BanRepository;
@@ -16,6 +17,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class BanServiceImpl implements BanService {
     private final BanRepository banRepository;
     private final UserRepository userRepository;

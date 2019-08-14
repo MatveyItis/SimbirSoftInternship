@@ -5,6 +5,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.itis.maletskov.internship.model.User;
 import ru.itis.maletskov.internship.model.UserAuth;
 import ru.itis.maletskov.internship.repository.UserRepository;
@@ -14,6 +15,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class UserDetailsServiceImpl implements UserDetailsService {
     private final UserRepository userRepository;
 
