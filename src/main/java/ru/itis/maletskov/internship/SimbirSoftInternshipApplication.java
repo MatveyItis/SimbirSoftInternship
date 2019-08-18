@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class SimbirSoftInternshipApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(SimbirSoftInternshipApplication.class, args);
+		SpringApplication.run(SimbirSoftInternshipApplication.class);
 	}
 
 }
